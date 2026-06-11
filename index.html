@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ShiftLine</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
@@ -18,23 +18,41 @@
 </div>
 
 <header>
-  <h1>ShiftLine</h1>
-  <div id="saveStatus">✓ Saved Locally</div>
+  <div>
+    <h1>ShiftLine</h1>
+    <small>Critical Care Drip & Handoff Assistant</small>
+  </div>
+  <div id="saveStatus">✓ Saved</div>
 </header>
 
-<div class="tabs">
+<div class="patient-tabs">
   <div id="patientTabs"></div>
   <button id="addPatientBtn">+ Patient</button>
 </div>
 
-<div class="patient-card">
-  <h2 id="patientTitle">No Patient Selected</h2>
-  <div class="nav">
-    <button>Drips</button>
-    <button>Report</button>
-    <button>Lines</button>
-    <button>Handoff</button>
+<div class="card">
+  <div class="patient-header">
+    <h2 id="patientTitle">No Patient Selected</h2>
+    <button id="deletePatientBtn">Archive</button>
   </div>
+
+  <label>Weight (kg)</label>
+  <input id="weightInput" type="number" placeholder="Weight">
+
+  <label>Quick Note</label>
+  <textarea id="quickNote" placeholder="Possible extubation tomorrow..."></textarea>
+</div>
+
+<div class="subtabs">
+  <button class="active">Drips</button>
+  <button>Report</button>
+  <button>Lines</button>
+  <button>Handoff</button>
+</div>
+
+<div class="card">
+  <h3>Build 2 Foundation Complete</h3>
+  <p>Drips, Report, Lines and Handoff modules will be added next.</p>
 </div>
 
 <script src="app.js"></script>
