@@ -1,15 +1,16 @@
 
-body{font-family:system-ui,sans-serif;background:#F4F6F8;padding:16px;max-width:800px;margin:auto}
-h1{margin:0;color:#1E3A5F}
-header{display:flex;justify-content:space-between;align-items:center}
-.card{background:#fff;border-radius:12px;padding:16px;margin-top:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.patient-tabs,.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
-.subtabs .active{background:#1E3A5F;color:#fff}
-input,textarea{width:100%;padding:10px;margin:6px 0 12px;border:1px solid #ccc;border-radius:8px}
-textarea{min-height:80px}
-.patient-header{display:flex;justify-content:space-between;align-items:center}
+body{font-family:system-ui,sans-serif;background:#F4F6F8;padding:16px;max-width:900px;margin:auto}
+.card{background:white;padding:16px;border-radius:12px;margin-top:12px}
+.patient-tabs,.subtabs{display:flex;gap:8px;flex-wrap:wrap}
+button{padding:8px 12px;border-radius:8px;border:1px solid #ccc}
+.patient-tab.active{background:#1E3A5F;color:white}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center}
-.modal-card{background:#fff;padding:20px;border-radius:12px;max-width:400px}
+.modal-card{background:white;padding:20px;border-radius:12px;width:300px}
 .hidden{display:none}
-.patient-tab.active{background:#2CA6A4;color:white}
+input,select{width:100%;padding:8px;margin-bottom:10px}
+.drip{padding:10px;border-radius:10px;margin-top:10px;color:white}
+.vasopressor{background:#b55252}
+.sedation{background:#c7922e}
+.cardiac{background:#4677b8}
+.other{background:#777}
+.section-header{display:flex;justify-content:space-between;align-items:center}

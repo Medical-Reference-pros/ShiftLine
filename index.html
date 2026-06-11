@@ -8,20 +8,8 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="disclaimer" class="modal hidden">
-  <div class="modal-card">
-    <h2>Welcome to ShiftLine</h2>
-    <p>Data is stored locally on this device only.</p>
-    <p>Do not enter patient names, MRNs, DOBs, or other identifying information.</p>
-    <button id="acceptBtn">I Understand</button>
-  </div>
-</div>
-
 <header>
-  <div>
-    <h1>ShiftLine</h1>
-    <small>Critical Care Drip & Handoff Assistant</small>
-  </div>
+  <h1>ShiftLine</h1>
   <div id="saveStatus">✓ Saved</div>
 </header>
 
@@ -31,16 +19,9 @@
 </div>
 
 <div class="card">
-  <div class="patient-header">
-    <h2 id="patientTitle">No Patient Selected</h2>
-    <button id="deletePatientBtn">Archive</button>
-  </div>
-
+  <h2 id="patientTitle">No Patient Selected</h2>
   <label>Weight (kg)</label>
-  <input id="weightInput" type="number" placeholder="Weight">
-
-  <label>Quick Note</label>
-  <textarea id="quickNote" placeholder="Possible extubation tomorrow..."></textarea>
+  <input id="weightInput" type="number">
 </div>
 
 <div class="subtabs">
@@ -51,8 +32,23 @@
 </div>
 
 <div class="card">
-  <h3>Build 2 Foundation Complete</h3>
-  <p>Drips, Report, Lines and Handoff modules will be added next.</p>
+  <div class="section-header">
+    <h3>Active Drips</h3>
+    <button id="addDripBtn">+ Add Drip</button>
+  </div>
+  <div id="dripList"></div>
+</div>
+
+<div id="dripModal" class="modal hidden">
+  <div class="modal-card">
+    <h3>Add Drip</h3>
+    <label>Drug</label>
+    <select id="drugSelect"></select>
+    <label>Dose</label>
+    <input id="doseInput" type="number" step="0.1">
+    <button id="saveDripBtn">Add Drip</button>
+    <button id="closeModalBtn">Cancel</button>
+  </div>
 </div>
 
 <script src="app.js"></script>
