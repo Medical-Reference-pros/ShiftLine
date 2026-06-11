@@ -1,56 +1,595 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ShiftLine</title>
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeeee9;
+    --text: #1a1a18; --text2: #6b6b66; --text3: #9b9b95;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.25);
+    --info-bg: #e6f1fb; --info-text: #0c447c; --info-border: rgba(12,68,124,0.3);
+    --warn-bg: #faeeda; --warn-text: #633806;
+    --danger-bg: #fcebeb; --danger-text: #791f1f;
+    --success-bg: #eaf3de; --success-text: #3b6d11;
+    --radius: 8px; --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2b;
+      --text: #f0f0ec; --text2: #a0a09a; --text3: #6b6b66;
+      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.22);
+      --info-bg: #0c2540; --info-text: #85b7eb; --info-border: rgba(133,183,235,0.3);
+      --warn-bg: #2a1e08; --warn-text: #fac775;
+      --danger-bg: #2a0f0f; --danger-text: #f09595;
+      --success-bg: #172904; --success-text: #97c459;
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; padding: 1rem; }
+  .app { max-width: 680px; margin: 0 auto; }
+  h1 { font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 1rem; }
+  .pt-tab-bar { display: flex; gap: 6px; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+  .pt-tab { padding: 6px 14px; border: 0.5px solid var(--border2); border-radius: var(--radius); font-size: 13px; cursor: pointer; background: var(--bg); color: var(--text2); white-space: nowrap; }
+  .pt-tab:hover { background: var(--bg2); }
+  .pt-tab.active { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); font-weight: 500; }
+  .pt-tab.add-btn { border-style: dashed; }
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+  .sec-label { font-size: 12px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 10px; }
+  .row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+  .field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 110px; }
+  .field label { font-size: 13px; color: var(--text2); }
+  input[type=number], input[type=text], input[type=date], select, textarea {
+    width: 100%; padding: 8px 10px; border: 0.5px solid var(--border2); border-radius: var(--radius);
+    background: var(--bg2); color: var(--text); font-size: 14px; outline: none; font-family: inherit;
+  }
+  input[type=number] { -moz-appearance: textfield; }
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--info-border); box-shadow: 0 0 0 2px rgba(12,68,124,0.12); }
+  textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+  select { cursor: pointer; }
+  .workspace-tabs { display: flex; gap: 0; margin-bottom: 0.75rem; border-bottom: 0.5px solid var(--border2); }
+  .ws-tab { padding: 8px 18px; font-size: 13px; cursor: pointer; background: transparent; border: none; color: var(--text2); border-bottom: 2px solid transparent; margin-bottom: -0.5px; }
+  .ws-tab.active { color: var(--info-text); border-bottom-color: var(--info-text); font-weight: 500; }
+  .drug-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; margin-bottom: 8px; }
+  .drug-btn { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 7px 10px; font-size: 13px; color: var(--text); cursor: pointer; text-align: left; }
+  .drug-btn:hover { background: var(--bg3); }
+  .drug-btn.active { border: 1.5px solid var(--info-border); color: var(--info-text); background: var(--info-bg); }
+  .cat-label { font-size: 12px; color: var(--text2); margin: 8px 0 5px; font-weight: 500; }
+  .tag { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: var(--radius); margin-left: 5px; vertical-align: middle; }
+  .tag-vasopressor { background: var(--danger-bg); color: var(--danger-text); }
+  .tag-sedation { background: var(--warn-bg); color: var(--warn-text); }
+  .tag-cardiac { background: var(--info-bg); color: var(--info-text); }
+  .tag-other { background: var(--bg2); color: var(--text2); }
+  .mode-toggle { display: flex; gap: 6px; margin-bottom: 10px; }
+  .mode-btn { padding: 5px 12px; border: 0.5px solid var(--border2); border-radius: var(--radius); font-size: 13px; cursor: pointer; background: transparent; color: var(--text2); }
+  .mode-btn.active { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
+  .result-box { background: var(--bg2); border-radius: var(--radius); padding: 0.75rem 1rem; margin-top: 10px; }
+  .result-main { font-size: 28px; font-weight: 500; color: var(--text); }
+  .result-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .add-drip-btn { margin-top: 10px; width: 100%; padding: 9px; border: 0.5px dashed var(--border2); border-radius: var(--radius); background: transparent; color: var(--text2); font-size: 13px; cursor: pointer; }
+  .add-drip-btn:hover { background: var(--bg2); }
+  .drip-row { border: 0.5px solid var(--border); border-radius: var(--radius); margin-bottom: 6px; overflow: hidden; }
+  .drip-row-main { display: flex; align-items: center; gap: 8px; padding: 9px 10px; cursor: pointer; background: var(--bg); }
+  .drip-row-main:hover { background: var(--bg2); }
+  .drip-col { flex: 1; min-width: 0; }
+  .drip-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .drip-val { font-size: 13px; color: var(--text); }
+  .drip-unit { font-size: 11px; color: var(--text2); }
+  .drip-detail { padding: 8px 10px; border-top: 0.5px solid var(--border); background: var(--bg2); display: none; }
+  .drip-detail.open { display: block; }
+  .drip-detail-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .drip-detail-item { display: flex; flex-direction: column; }
+  .drip-detail-item span:first-child { font-size: 11px; color: var(--text2); }
+  .drip-detail-item span:last-child { font-size: 13px; color: var(--text); }
+  .chevron { font-size: 13px; color: var(--text2); flex-shrink: 0; transition: transform 0.15s; display: inline-block; }
+  .chevron.open { transform: rotate(180deg); }
+  .remove-drip { background: none; border: none; color: var(--text2); cursor: pointer; font-size: 18px; padding: 0 4px; flex-shrink: 0; line-height: 1; }
+  .remove-drip:hover { color: var(--danger-text); }
+  .empty-drips { font-size: 13px; color: var(--text2); text-align: center; padding: 1rem 0; }
+  .clear-link { font-size: 12px; color: var(--text2); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 0; }
+  .conc-note { font-size: 11px; color: var(--warn-text); margin-top: 4px; }
+  .discharge-btn { font-size: 12px; color: var(--danger-text); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 0; margin-left: auto; }
+  .edit-label-btn { background: none; border: none; cursor: pointer; color: var(--text2); font-size: 15px; margin-left: 6px; padding: 0; }
+  .pt-header { display: flex; align-items: center; margin-bottom: 0.75rem; gap: 4px; }
+  .pt-name-display { font-size: 16px; font-weight: 500; color: var(--text); }
+  hr.section { border: none; border-top: 0.5px solid var(--border); margin: 10px 0; }
+  .conc-display { font-size: 12px; color: var(--text2); margin-bottom: 10px; padding: 6px 8px; background: var(--bg2); border-radius: var(--radius); }
+  .disclaimer { font-size: 11px; color: var(--text3); margin-top: 0.5rem; line-height: 1.5; }
+  /* Report styles */
+  .report-section { margin-bottom: 1rem; }
+  .report-section-title { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 0.5px solid var(--border); }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .field-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .field-row.full { grid-template-columns: 1fr; }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: var(--radius); font-weight: 500; }
+  .badge-dnr { background: var(--danger-bg); color: var(--danger-text); }
+  .badge-full { background: var(--success-bg); color: var(--success-text); }
+  .badge-comfort { background: var(--warn-bg); color: var(--warn-text); }
+  /* Lines checklist */
+  .lines-grid { display: flex; flex-direction: column; gap: 8px; }
+  .line-item { border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .line-header { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg2); cursor: pointer; }
+  .line-header input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; accent-color: var(--info-text); }
+  .line-header label { font-size: 13px; color: var(--text); cursor: pointer; flex: 1; }
+  .line-details { padding: 8px 10px; border-top: 0.5px solid var(--border); background: var(--bg); display: none; }
+  .line-details.open { display: block; }
+  .line-details-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .line-details-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
+  .modal { background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--radius-lg); padding: 1.25rem; width: 100%; max-width: 300px; }
+  .modal h3 { font-size: 15px; font-weight: 500; margin: 0 0 12px; color: var(--text); }
+  .modal-btns { display: flex; gap: 8px; margin-top: 12px; }
+  .modal-btns button { flex: 1; padding: 9px; border-radius: var(--radius); font-size: 13px; cursor: pointer; }
+  .btn-primary { background: var(--info-bg); color: var(--info-text); border: 0.5px solid var(--info-border); font-weight: 500; }
+  .btn-secondary { background: transparent; color: var(--text2); border: 0.5px solid var(--border2); }
+</style>
 </head>
 <body>
-<header>
+<div class="app">
   <h1>ShiftLine</h1>
-  <div id="saveStatus">✓ Saved</div>
-</header>
-
-<div class="patient-tabs">
-  <div id="patientTabs"></div>
-  <button id="addPatientBtn">+ Patient</button>
+  <div class="pt-tab-bar" id="tab-bar"></div>
+  <div id="workspace"></div>
+  <p class="disclaimer">Reference tool only. Verify all calculations against institutional protocols and current drug references. Not for diagnostic or prescriptive use. Propofol calculations based on selected concentration — confirm formulation with pharmacy before use.</p>
 </div>
 
-<div class="card">
-  <h2 id="patientTitle">No Patient Selected</h2>
-  <label>Weight (kg)</label>
-  <input id="weightInput" type="number">
-</div>
-
-<div class="subtabs">
-  <button class="active">Drips</button>
-  <button>Report</button>
-  <button>Lines</button>
-  <button>Handoff</button>
-</div>
-
-<div class="card">
-  <div class="section-header">
-    <h3>Active Drips</h3>
-    <button id="addDripBtn">+ Add Drip</button>
-  </div>
-  <div id="dripList"></div>
-</div>
-
-<div id="dripModal" class="modal hidden">
-  <div class="modal-card">
-    <h3>Add Drip</h3>
-    <label>Drug</label>
-    <select id="drugSelect"></select>
-    <label>Dose</label>
-    <input id="doseInput" type="number" step="0.1">
-    <button id="saveDripBtn">Add Drip</button>
-    <button id="closeModalBtn">Cancel</button>
+<div class="modal-overlay" id="modal-overlay" style="display:none;">
+  <div class="modal">
+    <h3 id="modal-title">Add patient</h3>
+    <div class="field">
+      <label id="modal-label">Room / Bed Identifier</label>
+      <input type="text" id="modal-input" placeholder="e.g. 412A, CV7, SICU4" maxlength="20">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="cancelModal()">Cancel</button>
+      <button class="btn-primary" id="modal-confirm-btn" onclick="confirmModal()">Add</button>
+    </div>
   </div>
 </div>
 
-<script src="app.js"></script>
+<script>
+const DRUGS = {
+  vasopressors: [
+    { id:'norepi', name:'Norepinephrine', tag:'vasopressor', doseUnit:'mcg/kg/min', weightBased:true,
+      concs:[{label:'4 mg / 250 mL',amt:4,vol:250},{label:'8 mg / 250 mL',amt:8,vol:250},{label:'4 mg / 100 mL (double conc)',amt:4,vol:100}] },
+    { id:'vaso', name:'Vasopressin', tag:'vasopressor', doseUnit:'units/min', weightBased:false,
+      concs:[{label:'20 units / 100 mL',amt:20,vol:100}] },
+    { id:'epi', name:'Epinephrine', tag:'vasopressor', doseUnit:'mcg/kg/min', weightBased:true,
+      concs:[{label:'4 mg / 250 mL',amt:4,vol:250},{label:'8 mg / 250 mL',amt:8,vol:250}] },
+    { id:'dopa', name:'Dopamine', tag:'vasopressor', doseUnit:'mcg/kg/min', weightBased:true,
+      concs:[{label:'400 mg / 250 mL',amt:400,vol:250},{label:'800 mg / 250 mL',amt:800,vol:250}] },
+    { id:'phenyl', name:'Phenylephrine', tag:'vasopressor', doseUnit:'mcg/kg/min', weightBased:true,
+      concs:[{label:'100 mg / 250 mL',amt:100,vol:250},{label:'200 mg / 250 mL',amt:200,vol:250}] },
+  ],
+  sedation: [
+    { id:'propofol', name:'Propofol', tag:'sedation', doseUnit:'mcg/kg/min', weightBased:true, propofol:true,
+      concs:[{label:'10 mg/mL (standard)',amt:10,vol:1},{label:'5 mg/mL (diluted 1:1)',amt:5,vol:1},{label:'2 mg/mL (further diluted)',amt:2,vol:1}] },
+    { id:'precedex', name:'Dexmedetomidine', tag:'sedation', doseUnit:'mcg/kg/hr', weightBased:true,
+      concs:[{label:'200 mcg / 50 mL (4 mcg/mL)',amt:200,vol:50}] },
+    { id:'fentanyl', name:'Fentanyl', tag:'sedation', doseUnit:'mcg/hr', weightBased:false,
+      concs:[{label:'250 mcg / 50 mL',amt:250,vol:50},{label:'500 mcg / 100 mL',amt:500,vol:100}] },
+    { id:'midaz', name:'Midazolam', tag:'sedation', doseUnit:'mg/hr', weightBased:false,
+      concs:[{label:'50 mg / 50 mL (1 mg/mL)',amt:50,vol:50},{label:'100 mg / 100 mL (1 mg/mL)',amt:100,vol:100}] },
+    { id:'morphine', name:'Morphine', tag:'sedation', doseUnit:'mg/hr', weightBased:false,
+      concs:[{label:'50 mg / 50 mL (1 mg/mL)',amt:50,vol:50}] },
+  ],
+  cardiac: [
+    { id:'amio', name:'Amiodarone', tag:'cardiac', doseUnit:'mg/hr', weightBased:false,
+      concs:[{label:'450 mg / 250 mL',amt:450,vol:250}] },
+    { id:'dilt', name:'Diltiazem', tag:'cardiac', doseUnit:'mg/hr', weightBased:false,
+      concs:[{label:'125 mg / 125 mL (1 mg/mL)',amt:125,vol:125}] },
+    { id:'nicard', name:'Nicardipine', tag:'cardiac', doseUnit:'mg/hr', weightBased:false,
+      concs:[{label:'25 mg / 250 mL (0.1 mg/mL)',amt:25,vol:250}] },
+    { id:'heparin', name:'Heparin', tag:'cardiac', doseUnit:'units/hr', weightBased:false,
+      concs:[{label:'25,000 units / 250 mL',amt:25000,vol:250},{label:'50,000 units / 250 mL',amt:50000,vol:250}] },
+  ],
+  other: [
+    { id:'insulin', name:'Insulin (regular)', tag:'other', doseUnit:'units/hr', weightBased:false,
+      concs:[{label:'100 units / 100 mL (1 unit/mL)',amt:100,vol:100}] },
+    { id:'kcl', name:'Potassium (KCl)', tag:'other', doseUnit:'mEq/hr', weightBased:false,
+      concs:[{label:'20 mEq / 100 mL',amt:20,vol:100}] },
+    { id:'mag', name:'Magnesium', tag:'other', doseUnit:'g/hr', weightBased:false,
+      concs:[{label:'2 g / 100 mL',amt:2,vol:100}] },
+  ]
+};
+
+const ALL_DRUGS = Object.values(DRUGS).flat();
+
+const LINE_TYPES = [
+  { id:'piv', label:'PIV', fields:[{id:'site',label:'Site',type:'text',placeholder:'e.g. R AC'},{id:'date',label:'Date placed',type:'date'}] },
+  { id:'central', label:'Central line', fields:[{id:'loc',label:'Location',type:'select',options:['R IJ','L IJ','R Subclavian','L Subclavian','R Femoral','L Femoral','Other']},{id:'date',label:'Date placed',type:'date'}] },
+  { id:'picc', label:'PICC', fields:[{id:'side',label:'Side',type:'select',options:['Left','Right']},{id:'date',label:'Date placed',type:'date'}] },
+  { id:'aline', label:'Art line', fields:[{id:'loc',label:'Location',type:'select',options:['Radial L','Radial R','Femoral L','Femoral R','Brachial L','Brachial R']},{id:'date',label:'Date placed',type:'date'}] },
+  { id:'foley', label:'Foley', fields:[{id:'date',label:'Date placed',type:'date'}] },
+  { id:'chest', label:'Chest tube', fields:[{id:'side',label:'Side',type:'select',options:['Left','Right','Bilateral']},{id:'date',label:'Date placed',type:'date'}] },
+  { id:'ngt', label:'NGT / OGT', fields:[{id:'type',label:'Type',type:'select',options:['NGT','OGT']},{id:'date',label:'Date placed',type:'date'}] },
+];
+
+function calcFactor(drug, conc, wt) {
+  const {amt, vol} = conc;
+  if (drug.propofol) return (amt * 1000) / ((wt||1) * 60);
+  if (drug.doseUnit === 'mcg/kg/min') return (amt * 1000) / (vol * (wt||1) * 60);
+  if (drug.doseUnit === 'mcg/kg/hr') return amt / (vol * (wt||1));
+  if (drug.doseUnit === 'units/min') return amt / (vol * 60);
+  return amt / vol;
+}
+
+function computeResult(drug, cs, weightKg) {
+  const conc = drug.concs[cs.concIdx >= 0 ? cs.concIdx : 0];
+  const wt = parseFloat(weightKg) || null;
+  if (drug.weightBased && !wt) return null;
+  const factor = calcFactor(drug, conc, wt);
+  if (cs.mode === 'dose') {
+    const dose = parseFloat(cs.doseInput);
+    if (!dose || dose <= 0) return null;
+    const rate = dose / factor;
+    return { main: rate.toFixed(2) + ' mL/hr', sub: 'Pump rate to deliver ' + dose + ' ' + drug.doseUnit, dose: dose.toString(), rate: rate.toFixed(2), conc };
+  } else {
+    const rate = parseFloat(cs.rateInput);
+    if (!rate || rate <= 0) return null;
+    const dose = rate * factor;
+    return { main: dose.toFixed(3) + ' ' + drug.doseUnit, sub: 'Dose delivered at ' + rate + ' mL/hr', dose: dose.toFixed(3), rate: rate.toString(), conc };
+  }
+}
+
+function emptyReport() {
+  const lines = {};
+  LINE_TYPES.forEach(lt => { lines[lt.id] = { checked: false, fields: {} }; });
+  return { attending:'', diagnosis:'', codeStatus:'Full', isolation:'None', allergies:'', lines, history:'', consults:'', pending:'', notes:'' };
+}
+
+function emptyPatient(label) {
+  return { id: nextId++, label, weightKg:'', activeDrops:[], wsTab:'calculator',
+    calcState:{ drugId:null, mode:'dose', concIdx:0, doseInput:'', rateInput:'' },
+    report: emptyReport() };
+}
+
+let patients = [];
+let activeId = null;
+let nextId = 1;
+
+const STORAGE_KEY='shiftline_refactor1';
+
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    patients, activeId, nextId
+  }));
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    patients = data.patients || [];
+    activeId = data.activeId || null;
+    nextId = data.nextId || 1;
+    return true;
+  }catch(e){
+    console.error(e);
+    return false;
+  }
+}
+
+let modalMode = null;
+
+function getPt(id) { return patients.find(p => p.id === (id || activeId)); }
+
+function openModal(mode) {
+  modalMode = mode;
+  const overlay = document.getElementById('modal-overlay');
+  const input = document.getElementById('modal-input');
+  document.getElementById('modal-title').textContent = mode === 'add' ? 'Add patient' : 'Edit patient label';
+  document.getElementById('modal-label').textContent = mode === 'add' ? 'Room / Bed Identifier' : 'Update label';
+  document.getElementById('modal-confirm-btn').textContent = mode === 'add' ? 'Add' : 'Save';
+  input.value = mode === 'edit' ? getPt().label : '';
+  input.placeholder = 'e.g. 412A, CV7, SICU4';
+  overlay.style.display = 'flex';
+  setTimeout(() => { input.focus(); if (mode === 'edit') input.select(); }, 50);
+}
+
+function cancelModal() { document.getElementById('modal-overlay').style.display = 'none'; modalMode = null; }
+
+function confirmModal() {
+  const val = document.getElementById('modal-input').value.trim();
+  if (modalMode === 'add') {
+    const pt = emptyPatient(val || ('Patient ' + nextId));
+    patients.push(pt);
+    activeId = pt.id;
+  } else {
+    if (val) getPt().label = val;
+  }
+  cancelModal();
+  render();
+}
+
+document.getElementById('modal-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmModal();
+  if (e.key === 'Escape') cancelModal();
+});
+
+function renderTabs() {
+  const bar = document.getElementById('tab-bar');
+  bar.innerHTML = '';
+  patients.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'pt-tab' + (p.id === activeId ? ' active' : '');
+    btn.textContent = p.label;
+    btn.onclick = () => { activeId = p.id; render(); };
+    bar.appendChild(btn);
+  });
+  if (patients.length < 4) {
+    const add = document.createElement('button');
+    add.className = 'pt-tab add-btn';
+    add.innerHTML = '<i class="ti ti-plus"></i> Add patient';
+    add.onclick = () => openModal('add');
+    bar.appendChild(add);
+  }
+}
+
+function renderCalculator(pt) {
+  const cs = pt.calcState;
+  const selDrug = cs.drugId ? ALL_DRUGS.find(d => d.id === cs.drugId) : null;
+  let h = '';
+
+  h += `<div class="card">
+    <p class="sec-label">Active drips — ${pt.label}</p>`;
+  if (!pt.activeDrops.length) {
+    h += `<p class="empty-drips">No active drips. Calculate below and tap "Add to active drips."</p>`;
+  } else {
+    pt.activeDrops.forEach((drip, idx) => {
+      h += `<div class="drip-row">
+        <div class="drip-row-main" onclick="toggleDetail(${idx})">
+          <div class="drip-col"><span class="drip-name">${drip.name}</span></div>
+          <div class="drip-col" style="text-align:center"><span class="drip-val">${drip.dose}</span><br><span class="drip-unit">${drip.doseUnit}</span></div>
+          <div class="drip-col" style="text-align:center"><span class="drip-val">${drip.rate}</span><br><span class="drip-unit">mL/hr</span></div>
+          <i class="ti ti-chevron-down chevron${drip.expanded?' open':''}"></i>
+          <button class="remove-drip" onclick="removeDrip(event,${idx})" title="Remove">×</button>
+        </div>
+        <div class="drip-detail${drip.expanded?' open':''}">
+          <div class="drip-detail-row">
+            <div class="drip-detail-item"><span>Concentration</span><span>${drip.concLabel}</span></div>
+            <div class="drip-detail-item"><span>Weight used</span><span>${drip.wt ? drip.wt+' kg' : 'N/A'}</span></div>
+            <div class="drip-detail-item"><span>Direction</span><span>${drip.mode==='dose'?'Dose → Rate':'Rate → Dose'}</span></div>
+          </div>
+        </div>
+      </div>`;
+    });
+  }
+  h += `</div>`;
+
+  h += `<div class="card"><p class="sec-label">Calculator</p>`;
+  const catLabels = { vasopressors:'Vasopressors', sedation:'Sedation / Analgesia', cardiac:'Cardiac', other:'Other' };
+  Object.entries(DRUGS).forEach(([cat, drugs]) => {
+    h += `<p class="cat-label">${catLabels[cat]}</p><div class="drug-grid">`;
+    drugs.forEach(d => {
+      h += `<button class="drug-btn${cs.drugId===d.id?' active':''}" onclick="selectDrug('${d.id}')">${d.name}<span class="tag tag-${d.tag}">${d.tag}</span></button>`;
+    });
+    h += `</div>`;
+  });
+
+  if (selDrug) {
+    const concIdx = cs.concIdx || 0;
+    h += `<hr class="section">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-size:14px;font-weight:500;">${selDrug.name}</span>
+      <button class="clear-link" onclick="clearDrug()">clear</button>
+    </div>`;
+    if (selDrug.concs.length > 1) {
+      h += `<div class="field" style="margin-bottom:10px;"><label>Concentration</label><select onchange="setConc(this.selectedIndex)">`;
+      selDrug.concs.forEach((c,i) => { h += `<option value="${i}"${i===concIdx?' selected':''}>${c.label}</option>`; });
+      h += `</select>`;
+      if (selDrug.propofol) h += `<span class="conc-note"><i class="ti ti-alert-triangle"></i> Confirm Propofol formulation with pharmacy before use</span>`;
+      h += `</div>`;
+    } else {
+      h += `<div class="conc-display">${selDrug.concs[0].label}</div>`;
+    }
+    h += `<div class="mode-toggle">
+      <button class="mode-btn${cs.mode==='dose'?' active':''}" onclick="setMode('dose')">Dose → Rate</button>
+      <button class="mode-btn${cs.mode==='rate'?' active':''}" onclick="setMode('rate')">Rate → Dose</button>
+    </div>`;
+    if (cs.mode === 'dose') {
+      h += `<div class="field" style="max-width:220px;"><label>Ordered dose (${selDrug.doseUnit})</label><input type="number" id="dose-input" value="${cs.doseInput}" min="0" step="any" placeholder="0" oninput="setCalcVal('doseInput',this.value)"></div>`;
+    } else {
+      h += `<div class="field" style="max-width:220px;"><label>Pump rate (mL/hr)</label><input type="number" id="rate-input" value="${cs.rateInput}" min="0" step="any" placeholder="0" oninput="setCalcVal('rateInput',this.value)"></div>`;
+    }
+    const result = computeResult(selDrug, cs, pt.weightKg);
+    if (result) {
+      h += `<div class="result-box"><div class="result-main">${result.main}</div><div class="result-sub">${result.sub}</div></div>
+      <button class="add-drip-btn" onclick="addDrip()"><i class="ti ti-plus"></i> Add to active drips</button>`;
+    } else if (selDrug.weightBased && !pt.weightKg) {
+      h += `<div class="result-box"><div class="result-sub">Enter patient weight above to calculate</div></div>`;
+    }
+  }
+  h += `</div>`;
+  return h;
+}
+
+function renderReport(pt) {
+  const r = pt.report;
+  let h = '<div class="card">';
+
+  h += `<div class="report-section">
+    <div class="report-section-title">Patient overview</div>
+    <div class="field-row">
+      <div class="field"><label>Attending MD</label><input type="text" value="${esc(r.attending)}" placeholder="Last name" oninput="setReport('attending',this.value)"></div>
+      <div class="field"><label>Admitting diagnosis</label><input type="text" value="${esc(r.diagnosis)}" placeholder="Primary diagnosis" oninput="setReport('diagnosis',this.value)"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Code status</label>
+        <select onchange="setReport('codeStatus',this.value)">
+          ${['Full','DNR','DNI','DNR-DNI','Comfort care'].map(o=>`<option${r.codeStatus===o?' selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Isolation</label>
+        <select onchange="setReport('isolation',this.value)">
+          ${['None','Contact','Droplet','Airborne','Contact + Airborne','Contact + Droplet'].map(o=>`<option${r.isolation===o?' selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="field-row full">
+      <div class="field"><label>Allergies</label><input type="text" value="${esc(r.allergies)}" placeholder="NKDA or list allergies" oninput="setReport('allergies',this.value)"></div>
+    </div>
+  </div>`;
+
+  h += `<div class="report-section">
+    <div class="report-section-title">Lines &amp; access</div>
+    <div class="lines-grid">`;
+  LINE_TYPES.forEach(lt => {
+    const lineData = r.lines[lt.id];
+    const checked = lineData.checked;
+    h += `<div class="line-item">
+      <div class="line-header" onclick="toggleLine('${lt.id}')">
+        <input type="checkbox" id="line-${lt.id}" ${checked?'checked':''} onclick="event.stopPropagation();toggleLine('${lt.id}')">
+        <label for="line-${lt.id}" onclick="event.preventDefault()">${lt.label}</label>
+        ${checked ? `<i class="ti ti-chevron-down chevron${checked?' open':''}" style="font-size:13px;color:var(--text2);"></i>` : ''}
+      </div>`;
+    if (checked) {
+      const cols = lt.fields.length >= 3 ? 'three' : '';
+      h += `<div class="line-details open"><div class="line-details-row ${cols}">`;
+      lt.fields.forEach(f => {
+        const val = lineData.fields[f.id] || '';
+        h += `<div class="field"><label>${f.label}</label>`;
+        if (f.type === 'select') {
+          h += `<select onchange="setLineField('${lt.id}','${f.id}',this.value)">
+            <option value="">Select...</option>
+            ${f.options.map(o=>`<option${val===o?' selected':''}>${o}</option>`).join('')}
+          </select>`;
+        } else if (f.type === 'date') {
+          h += `<input type="date" value="${val}" onchange="setLineField('${lt.id}','${f.id}',this.value)">`;
+        } else {
+          h += `<input type="text" value="${esc(val)}" placeholder="${f.placeholder||''}" oninput="setLineField('${lt.id}','${f.id}',this.value)">`;
+        }
+        h += `</div>`;
+      });
+      h += `</div></div>`;
+    }
+    h += `</div>`;
+  });
+  h += `</div></div>`;
+
+  h += `<div class="report-section">
+    <div class="report-section-title">Clinical background</div>
+    <div class="field-row full" style="margin-bottom:10px;">
+      <div class="field"><label>Relevant medical history</label><textarea oninput="setReport('history',this.value)" placeholder="Significant PMH, surgical history...">${esc(r.history)}</textarea></div>
+    </div>
+    <div class="field-row full">
+      <div class="field"><label>Active consults</label><textarea oninput="setReport('consults',this.value)" placeholder="Cardiology, pulm, ID, surgery..." style="min-height:56px;">${esc(r.consults)}</textarea></div>
+    </div>
+  </div>`;
+
+  h += `<div class="report-section">
+    <div class="report-section-title">Pending &amp; shift notes</div>
+    <div class="field-row full" style="margin-bottom:10px;">
+      <div class="field"><label>Pending procedures / labs / imaging</label><textarea oninput="setReport('pending',this.value)" placeholder="Scheduled procedures, outstanding results...">${esc(r.pending)}</textarea></div>
+    </div>
+    <div class="field-row full">
+      <div class="field"><label>Shift notes / to-do</label><textarea oninput="setReport('notes',this.value)" placeholder="Free text — anything for end of shift report...">${esc(r.notes)}</textarea></div>
+    </div>
+  </div>`;
+
+  h += '</div>';
+  return h;
+}
+
+function renderWorkspace() {
+  const ws = document.getElementById('workspace');
+  const pt = getPt();
+  if (!pt) { ws.innerHTML = ''; return; }
+  let h = '';
+
+  h += `<div class="card">
+    <div class="pt-header">
+      <span class="pt-name-display">${pt.label}</span>
+      <button class="edit-label-btn" onclick="openModal('edit')" title="Edit label"><i class="ti ti-pencil"></i></button>
+      ${patients.length > 1 ? `<button class="discharge-btn" onclick="discharge(${pt.id})">discharge</button>` : ''}
+    </div>
+    <p class="sec-label">Patient weight</p>
+    <div class="row">
+      <div class="field"><label>Weight (kg)</label><input type="number" id="wt-kg" value="${pt.weightKg}" placeholder="e.g. 80" min="1" max="300" step="any" onchange="wtChange('kg',this.value)" oninput="wtInput('kg',this.value)"></div>
+      <div class="field"><label>Weight (lbs)</label><input type="number" id="wt-lbs" value="${pt.weightKg ? (parseFloat(pt.weightKg)*2.2046).toFixed(1) : ''}" placeholder="e.g. 176" step="any" onchange="wtChange('lbs',this.value)" oninput="wtInput('lbs',this.value)"></div>
+    </div>
+  </div>`;
+
+  h += `<div class="workspace-tabs">
+    <button class="ws-tab${pt.wsTab==='calculator'?' active':''}" onclick="setWsTab('calculator')">Calculator</button>
+    <button class="ws-tab${pt.wsTab==='report'?' active':''}" onclick="setWsTab('report')">Shift report</button>
+  </div>`;
+
+  if (pt.wsTab === 'calculator') {
+    h += renderCalculator(pt);
+  } else {
+    h += renderReport(pt);
+  }
+
+  ws.innerHTML = h;
+}
+
+function render() { saveState(); renderTabs(); renderWorkspace(); }
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function wtInput(from, val) {
+  const pt = getPt();
+  if (from === 'kg') {
+    pt.weightKg = val;
+    const el = document.getElementById('wt-lbs');
+    if (el && val) el.value = (parseFloat(val)*2.2046).toFixed(1);
+    else if (el) el.value = '';
+  } else {
+    pt.weightKg = val ? (parseFloat(val)/2.2046).toFixed(1) : '';
+    const el = document.getElementById('wt-kg');
+    if (el) el.value = pt.weightKg;
+  }
+}
+
+function wtChange(from, val) { wtInput(from, val); }
+
+function setWsTab(tab) { getPt().wsTab = tab; renderWorkspace(); }
+
+function selectDrug(id) { getPt().calcState = { drugId:id, mode:'dose', concIdx:0, doseInput:'', rateInput:'' }; renderWorkspace(); }
+function clearDrug() { getPt().calcState = { drugId:null, mode:'dose', concIdx:0, doseInput:'', rateInput:'' }; renderWorkspace(); }
+function setMode(m) { const cs=getPt().calcState; cs.mode=m; cs.doseInput=''; cs.rateInput=''; renderWorkspace(); }
+function setConc(i) { getPt().calcState.concIdx=i; renderWorkspace(); }
+function setCalcVal(f,v) { getPt().calcState[f]=v; renderWorkspace(); }
+
+function addDrip() {
+  const pt=getPt(); const cs=pt.calcState;
+  const drug=ALL_DRUGS.find(d=>d.id===cs.drugId);
+  if (!drug) return;
+  const result=computeResult(drug,cs,pt.weightKg);
+  if (!result) return;
+  pt.activeDrops.push({ name:drug.name, dose:result.dose, doseUnit:drug.doseUnit, rate:result.rate, concLabel:result.conc.label, wt:pt.weightKg||null, mode:cs.mode, expanded:false });
+  pt.calcState={ drugId:null, mode:'dose', concIdx:0, doseInput:'', rateInput:'' };
+  render();
+}
+
+function removeDrip(e,idx) { e.stopPropagation(); getPt().activeDrops.splice(idx,1); renderWorkspace(); }
+function toggleDetail(idx) { const d=getPt().activeDrops[idx]; d.expanded=!d.expanded; renderWorkspace(); }
+function discharge(id) { patients=patients.filter(p=>p.id!==id); if(activeId===id) activeId=patients[0].id; render(); }
+
+function setReport(field, val) { getPt().report[field]=val; }
+
+function toggleLine(lineId) {
+  const pt=getPt();
+  pt.report.lines[lineId].checked = !pt.report.lines[lineId].checked;
+  renderWorkspace();
+}
+
+function setLineField(lineId, fieldId, val) {
+  getPt().report.lines[lineId].fields[fieldId]=val;
+}
+
+if(!loadState()){
+  const first = emptyPatient('');
+  patients.push(first);
+  activeId = first.id;
+  openModal('edit');
+}
+render();
+</script>
 </body>
 </html>
