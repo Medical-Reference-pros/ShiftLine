@@ -1,0 +1,8 @@
+{
+"name":"ShiftLine",
+"short_name":"ShiftLine",
+"display":"standalone",
+"start_url":"./",
+"background_color":"#F4F6F8",
+"theme_color":"#1E3A5F"
+}

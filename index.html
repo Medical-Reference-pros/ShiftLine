@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShiftLine</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="disclaimer" class="modal hidden">
+  <div class="modal-card">
+    <h2>Welcome to ShiftLine</h2>
+    <p>Data is stored locally on this device only.</p>
+    <p>Do not enter patient names, MRNs, DOBs, or other identifying information.</p>
+    <button id="acceptBtn">I Understand</button>
+  </div>
+</div>
+
+<header>
+  <h1>ShiftLine</h1>
+  <div id="saveStatus">✓ Saved Locally</div>
+</header>
+
+<div class="tabs">
+  <div id="patientTabs"></div>
+  <button id="addPatientBtn">+ Patient</button>
+</div>
+
+<div class="patient-card">
+  <h2 id="patientTitle">No Patient Selected</h2>
+  <div class="nav">
+    <button>Drips</button>
+    <button>Report</button>
+    <button>Lines</button>
+    <button>Handoff</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
