@@ -777,7 +777,25 @@ function addDrip() {
   render();
 }
 
-function removeDrip(e,idx) { e.stopPropagation(); getPt().activeDrops.splice(idx,1); renderWorkspace(); }
+function removeDrip(e,idx) {
+
+  e.stopPropagation();
+
+  const drip =
+    getPt().activeDrops[idx];
+
+  if(
+    !confirm(
+      `Remove ${drip.name}?`
+    )
+  ){
+    return;
+  }
+
+  getPt().activeDrops.splice(idx,1);
+
+  render();
+}
 function toggleDetail(idx) { const d=getPt().activeDrops[idx]; d.expanded=!d.expanded; renderWorkspace(); }
  function formatTime(ts){
   if(!ts) return '';
