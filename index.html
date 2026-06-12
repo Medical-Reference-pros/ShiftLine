@@ -738,6 +738,44 @@ function addDrip() {
   pt.calcState={ drugId:null, mode:'dose', concIdx:0, doseInput:'', rateInput:'' };
   render();
 }
+ function editCustomDrip(idx){
+
+  const drip =
+    getPt().activeDrops[idx];
+
+  const dose =
+    prompt(
+      'Dose',
+      drip.dose
+    );
+
+  if(dose === null) return;
+
+  const units =
+    prompt(
+      'Units',
+      drip.doseUnit
+    );
+
+  if(units === null) return;
+
+  const rate =
+    prompt(
+      'Rate (mL/hr)',
+      drip.rate
+    );
+
+  if(rate === null) return;
+
+  drip.dose = dose;
+  drip.doseUnit = units;
+  drip.rate = rate;
+
+  drip.lastTitration =
+    new Date().toISOString();
+
+  render();
+}
 
 function removeDrip(e,idx) { e.stopPropagation(); getPt().activeDrops.splice(idx,1); renderWorkspace(); }
 function toggleDetail(idx) { const d=getPt().activeDrops[idx]; d.expanded=!d.expanded; renderWorkspace(); }
