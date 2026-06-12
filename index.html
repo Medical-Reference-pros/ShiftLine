@@ -469,6 +469,12 @@ ${drip.drugId !== 'custom' ? `
   Custom drip — edit manually if dose or rate changes.
 </div>
 
+<div style="margin-top:8px;">
+  <button onclick="event.stopPropagation();editCustomDrip(${idx})">
+    Edit
+  </button>
+</div>
+
 `}
 
 ${drip.titrationHistory && drip.titrationHistory.length ? `
