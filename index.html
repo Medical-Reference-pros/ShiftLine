@@ -637,12 +637,26 @@ function renderReport(pt) {
   </div>`;
  h += `
 <div class="card">
-  <button
-    class="btn-primary"
-    style="width:100%;padding:12px;"
-    onclick="copyReport()">
-    Copy Shift Report
-  </button>
+  <div style="
+  display:flex;
+  gap:8px;
+">
+
+<button
+  class="btn-primary"
+  style="flex:1;padding:12px;"
+  onclick="copyReport()">
+  Copy Report
+</button>
+
+<button
+  class="btn-primary"
+  style="flex:1;padding:12px;"
+  onclick="shareReport()">
+  Share Report
+</button>
+
+</div>
 </div>`;
 
   h += '</div>';
