@@ -549,6 +549,15 @@ function renderReport(pt) {
       <div class="field"><label>Shift notes / to-do</label><textarea oninput="setReport('notes',this.value)" placeholder="Free text — anything for end of shift report...">${esc(r.notes)}</textarea></div>
     </div>
   </div>`;
+ h += `
+<div class="card">
+  <button
+    class="btn-primary"
+    style="width:100%;padding:12px;"
+    onclick="copyReport()">
+    Copy Shift Report
+  </button>
+</div>`;
 
   h += '</div>';
   return h;
