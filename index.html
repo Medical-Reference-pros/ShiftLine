@@ -894,41 +894,14 @@ function quickTitrate(idx, delta){
 
   render();
 }
-function discharge(id) {
-
-  if(!confirm('Discharge this patient?')){
-    return;
-  }
-
-  patients = patients.filter(
-    p => p.id !== id
-  );
-
-  if(patients.length === 0){
-
-    const room =
-      prompt('Enter room number');
-
-    if(!room){
-      location.reload();
-      return;
-    }
-
-    const pt = createPatient(room);
-
-    patients.push(pt);
-
-    activeId = pt.id;
-
-  } else if(activeId === id){
-
-    activeId = patients[0].id;
-
-  }
+if(patients.length === 0){
 
   save();
 
   render();
+
+  return;
+
 }
 
 function setReport(field, val) { getPt().report[field]=val; }
