@@ -577,7 +577,25 @@ function addDrip() {
   if (!drug) return;
   const result=computeResult(drug,cs,pt.weightKg);
   if (!result) return;
-  pt.activeDrops.push({ name:drug.name, dose:result.dose, doseUnit:drug.doseUnit, rate:result.rate, concLabel:result.conc.label, wt:pt.weightKg||null, mode:cs.mode, expanded:false });
+  pt.activeDrops.push({
+  name:drug.name,
+  drugId:drug.id,
+  dose:result.dose,
+  doseUnit:drug.doseUnit,
+  rate:result.rate,
+
+  concLabel:result.conc.label,
+  concIdx:cs.concIdx,
+
+  wt:pt.weightKg||null,
+
+  mode:cs.mode,
+
+  expanded:false,
+
+  lastTitration:null,
+  titrationHistory:[]
+});
   pt.calcState={ drugId:null, mode:'dose', concIdx:0, doseInput:'', rateInput:'' };
   render();
 }
