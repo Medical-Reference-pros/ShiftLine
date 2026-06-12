@@ -665,7 +665,7 @@ function renderWorkspace() {
     <div class="pt-header">
       <span class="pt-name-display">${pt.label}</span>
       <button class="edit-label-btn" onclick="openModal('edit')" title="Edit label"><i class="ti ti-pencil"></i></button>
-      ${patients.length > 1 ? `<button class="discharge-btn" onclick="discharge(${pt.id})">discharge</button>` : ''}
+      <button class="discharge-btn" onclick="discharge(${pt.id})">discharge</button>
     </div>
     <p class="sec-label">Patient weight</p>
     <div class="row">
