@@ -427,6 +427,18 @@ ${drip.titrationHistory && drip.titrationHistory.length ? `
 
   h += `<div class="card"><p class="sec-label">Calculator</p>`;
   const catLabels = { vasopressors:'Vasopressors', sedation:'Sedation / Analgesia', cardiac:'Cardiac', other:'Other' };
+ h += `
+<p class="cat-label">Custom</p>
+
+<div class="drug-grid">
+  <button
+    class="drug-btn"
+    onclick="openCustomDrip()">
+
+    + Custom Drip
+
+  </button>
+</div>`;
   Object.entries(DRUGS).forEach(([cat, drugs]) => {
     h += `<p class="cat-label">${catLabels[cat]}</p><div class="drug-grid">`;
     drugs.forEach(d => {
