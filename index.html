@@ -976,6 +976,32 @@ function copyReport(){
 
   alert('Shift report copied to clipboard');
 }
+ function shareReport(){
+
+  const txt =
+    buildReportText();
+
+  if(navigator.share){
+
+    navigator.share({
+
+      title:'ShiftLine Report',
+
+      text:txt
+
+    });
+
+  } else {
+
+    navigator.clipboard
+      .writeText(txt);
+
+    alert(
+      'Sharing not supported. Report copied instead.'
+    );
+
+  }
+}
  
 
 if(!loadState()){
