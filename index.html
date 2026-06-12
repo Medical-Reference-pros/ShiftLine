@@ -415,29 +415,8 @@ function renderCalculator(pt) {
   } else {
     pt.activeDrops.forEach((drip, idx) => {
       h += `<div class="drip-row">
-        <div class="drip-col">
-
-  <span class="drip-name">
-    ${drip.name}
-
-    ${isRecentTitration(drip.lastTitration) ? `
-      <span style="
-        margin-left:8px;
-        background:#d97706;
-        color:white;
-        padding:2px 6px;
-        border-radius:999px;
-        font-size:10px;
-        font-weight:600;
-      ">
-        RECENT
-      </span>
-    ` : ''}
-
-  </span>
-
-</div>
-          
+        <div class="drip-row-main" onclick="toggleDetail(${idx})">
+          <div class="drip-col"><span class="drip-name">${drip.name}</span></div>
           <div class="drip-col" style="text-align:center"><span class="drip-val">${drip.dose}</span><br><span class="drip-unit">${drip.doseUnit}</span></div>
           <div class="drip-col" style="text-align:center"><span class="drip-val">${drip.rate}</span><br><span class="drip-unit">mL/hr</span></div>
           <i class="ti ti-chevron-down chevron${drip.expanded?' open':''}"></i>
@@ -658,26 +637,12 @@ function renderReport(pt) {
   </div>`;
  h += `
 <div class="card">
-  <div style="
-  display:flex;
-  gap:8px;
-">
-
-<button
-  class="btn-primary"
-  style="flex:1;padding:12px;"
-  onclick="copyReport()">
-  Copy Report
-</button>
-
-<button
-  class="btn-primary"
-  style="flex:1;padding:12px;"
-  onclick="shareReport()">
-  Share Report
-</button>
-
-</div>
+  <button
+    class="btn-primary"
+    style="width:100%;padding:12px;"
+    onclick="copyReport()">
+    Copy Shift Report
+  </button>
 </div>`;
 
   h += '</div>';
@@ -812,38 +777,9 @@ function addDrip() {
   render();
 }
 
-function removeDrip(e,idx) {
-
-  e.stopPropagation();
-
-  const drip =
-    getPt().activeDrops[idx];
-
-  if(
-    !confirm(
-      `Remove ${drip.name}?`
-    )
-  ){
-    return;
-  }
-
-  getPt().activeDrops.splice(idx,1);
-
-  render();
-}
+function removeDrip(e,idx) { e.stopPropagation(); getPt().activeDrops.splice(idx,1); renderWorkspace(); }
 function toggleDetail(idx) { const d=getPt().activeDrops[idx]; d.expanded=!d.expanded; renderWorkspace(); }
  function formatTime(ts){
-  function isRecentTitration(ts){
-
-  if(!ts) return false;
-
-  const diff =
-    Date.now() -
-    new Date(ts).getTime();
-
-  return diff < (30 * 60 * 1000);
-
-}
   if(!ts) return '';
   return new Date(ts).toLocaleTimeString([],{
     hour:'2-digit',
@@ -1021,32 +957,6 @@ function copyReport(){
   navigator.clipboard.writeText(txt);
 
   alert('Shift report copied to clipboard');
-}
- function shareReport(){
-
-  const txt =
-    buildReportText();
-
-  if(navigator.share){
-
-    navigator.share({
-
-      title:'ShiftLine Report',
-
-      text:txt
-
-    });
-
-  } else {
-
-    navigator.clipboard
-      .writeText(txt);
-
-    alert(
-      'Sharing not supported. Report copied instead.'
-    );
-
-  }
 }
  
 
