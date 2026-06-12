@@ -812,6 +812,17 @@ function removeDrip(e,idx) {
 }
 function toggleDetail(idx) { const d=getPt().activeDrops[idx]; d.expanded=!d.expanded; renderWorkspace(); }
  function formatTime(ts){
+  function isRecentTitration(ts){
+
+  if(!ts) return false;
+
+  const diff =
+    Date.now() -
+    new Date(ts).getTime();
+
+  return diff < (30 * 60 * 1000);
+
+}
   if(!ts) return '';
   return new Date(ts).toLocaleTimeString([],{
     hour:'2-digit',
