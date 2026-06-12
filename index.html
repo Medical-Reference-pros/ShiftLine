@@ -369,6 +369,35 @@ function renderCalculator(pt) {
             <div class="drip-detail-item"><span>Concentration</span><span>${drip.concLabel}</span></div>
             <div class="drip-detail-item"><span>Weight used</span><span>${drip.wt ? drip.wt+' kg' : 'N/A'}</span></div>
             <div class="drip-detail-item"><span>Direction</span><span>${drip.mode==='dose'?'Dose → Rate':'Rate → Dose'}</span></div>
+            <hr class="section">
+
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
+
+<button onclick="event.stopPropagation();quickTitrate(${idx},-5)">
+-5
+</button>
+
+<button onclick="event.stopPropagation();quickTitrate(${idx},-2)">
+-2
+</button>
+
+<button onclick="event.stopPropagation();quickTitrate(${idx},-1)">
+-1
+</button>
+
+<button onclick="event.stopPropagation();quickTitrate(${idx},1)">
++1
+</button>
+
+<button onclick="event.stopPropagation();quickTitrate(${idx},2)">
++2
+</button>
+
+<button onclick="event.stopPropagation();quickTitrate(${idx},5)">
++5
+</button>
+
+</div>
           </div>
         </div>
       </div>`;
