@@ -750,6 +750,12 @@ function setMode(m) { const cs=getPt().calcState; cs.mode=m; cs.doseInput=''; cs
 function setConc(i) { getPt().calcState.concIdx=i; renderWorkspace(); }
 function setCalcVal(f,v) {
   getPt().calcState[f]=v;
+
+  clearTimeout(window.calcTimer);
+
+  window.calcTimer = setTimeout(() => {
+    renderWorkspace();
+  }, 300);
 }
 
 function addDrip() {
