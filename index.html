@@ -427,7 +427,9 @@ function renderCalculator(pt) {
             <div class="drip-detail-item"><span>Concentration</span><span>${drip.concLabel}</span></div>
             <div class="drip-detail-item"><span>Weight used</span><span>${drip.wt ? drip.wt+' kg' : 'N/A'}</span></div>
             <div class="drip-detail-item"><span>Direction</span><span>${drip.mode==='dose'?'Dose → Rate':'Rate → Dose'}</span></div>
-            <hr class="section">
+<hr class="section">
+
+${drip.drugId !== 'custom' ? `
 
 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
 
@@ -454,12 +456,20 @@ function renderCalculator(pt) {
 <button onclick="event.stopPropagation();quickTitrate(${idx},5)">
 +5
 </button>
-${drip.lastTitration ? `
-  <div style="margin-top:10px;font-size:12px;">
-    <strong>Last Change:</strong>
-    ${formatTime(drip.lastTitration)}
-  </div>
-` : ''}
+
+</div>
+
+` : `
+
+<div style="
+  margin-top:10px;
+  font-size:12px;
+  color:var(--text2);
+">
+  Custom drip — edit manually if dose or rate changes.
+</div>
+
+`}
 
 ${drip.titrationHistory && drip.titrationHistory.length ? `
   <div style="margin-top:10px;font-size:12px;">
