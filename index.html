@@ -577,9 +577,22 @@ ${drip.titrationHistory && drip.titrationHistory.length ? `
       <button class="mode-btn${cs.mode==='rate'?' active':''}" onclick="setMode('rate')">Rate → Dose</button>
     </div>`;
     if (cs.mode === 'dose') {
-      h += `<div class="field" style="max-width:220px;"><label>Ordered dose (${selDrug.doseUnit})</label><input type="number" id="dose-input" value="${cs.doseInput}" min="0" step="any" placeholder="0" oninput="setCalcVal('doseInput',this.value)"></div>`;
-    } else {
-      h += `<div class="field" style="max-width:220px;"><label>Pump rate (mL/hr)</label><input type="number" id="rate-input" value="${cs.rateInput}" min="0" step="any" placeholder="0" oninput="setCalcVal('rateInput',this.value)"></div>`;
+      h += `<div class="field" style="max-width:220px;"><label>Ordered dose (${selDrug.doseUnit})</label><input type="number"
+id="dose-input"
+value="${cs.doseInput}"
+min="0"
+step="any"
+placeholder="0"
+oninput="setCalcVal('doseInput',this.value)"
+onchange="renderWorkspace()">
+      h += `<div class="field" style="max-width:220px;"><label>Pump rate (mL/hr)</label><input type="number"
+id="rate-input"
+value="${cs.rateInput}"
+min="0"
+step="any"
+placeholder="0"
+oninput="setCalcVal('rateInput',this.value)"
+onchange="renderWorkspace()">
     }
     const result = computeResult(selDrug, cs, pt.weightKg);
     if (result) {
