@@ -396,6 +396,21 @@ function renderCalculator(pt) {
 <button onclick="event.stopPropagation();quickTitrate(${idx},5)">
 +5
 </button>
+${drip.lastTitration ? `
+  <div style="margin-top:10px;font-size:12px;">
+    <strong>Last Change:</strong>
+    ${formatTime(drip.lastTitration)}
+  </div>
+` : ''}
+
+${drip.titrationHistory && drip.titrationHistory.length ? `
+  <div style="margin-top:10px;font-size:12px;">
+    <strong>Recent Changes</strong><br>
+    ${drip.titrationHistory.map(item =>
+      `${formatTime(item.timestamp)} ${item.oldDose}→${item.newDose}`
+    ).join('<br>')}
+  </div>
+` : ''}
 
 </div>
           </div>
