@@ -2,9 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
- <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ShiftLine</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <style>
@@ -31,11 +29,7 @@
     }
   }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; padding: 1rem; }
-  .app {
-  width: 100%;
-  max-width: 680px;
-  margin: 0 auto;
-}
+  .app { max-width: 680px; margin: 0 auto; }
   h1 { font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 1rem; }
   .pt-tab-bar { display: flex; gap: 6px; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
   .pt-tab { padding: 6px 14px; border: 0.5px solid var(--border2); border-radius: var(--radius); font-size: 13px; cursor: pointer; background: var(--bg); color: var(--text2); white-space: nowrap; }
@@ -51,30 +45,6 @@
     width: 100%; padding: 8px 10px; border: 0.5px solid var(--border2); border-radius: var(--radius);
     background: var(--bg2); color: var(--text); font-size: 14px; outline: none; font-family: inherit;
   }
- h1 {
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--text);
-  margin-bottom: 1rem;
-}
-
-.app-logo{
-  font-size:34px;
-  font-weight:700;
-  letter-spacing:-1px;
-  color:var(--text);
-  margin-bottom:4px;
-}
-
-.app-logo-accent{
-  color:#0c447c;
-}
-
-.app-tagline{
-  font-size:14px;
-  color:var(--text2);
-  margin-bottom:24px;
-}
   input[type=number] { -moz-appearance: textfield; }
   input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
   input:focus, select:focus, textarea:focus { border-color: var(--info-border); box-shadow: 0 0 0 2px rgba(12,68,124,0.12); }
@@ -175,18 +145,8 @@
 </head>
 <body>
 <div class="app">
-  <div style="text-align:center;padding:0.5rem 0 1rem 0;">
-  <div class="app-logo">
-    Shift<span class="app-logo-accent">Line</span>
-  </div>
-
-  <div class="app-tagline">
-    ICU Shift Assistant
-  </div>
-</div>
-
-<div class="pt-tab-bar" id="tab-bar"></div>
-  
+  <h1>ShiftLine</h1>
+  <div class="pt-tab-bar" id="tab-bar"></div>
   <div id="workspace"></div>
   <p class="disclaimer">Reference tool only. Verify all calculations against institutional protocols and current drug references. Not for diagnostic or prescriptive use. Propofol calculations based on selected concentration — confirm formulation with pharmacy before use.</p>
 </div>
@@ -577,22 +537,9 @@ ${drip.titrationHistory && drip.titrationHistory.length ? `
       <button class="mode-btn${cs.mode==='rate'?' active':''}" onclick="setMode('rate')">Rate → Dose</button>
     </div>`;
     if (cs.mode === 'dose') {
-      h += `<div class="field" style="max-width:220px;"><label>Ordered dose (${selDrug.doseUnit})</label><input type="number"
-id="dose-input"
-value="${cs.doseInput}"
-min="0"
-step="any"
-placeholder="0"
-oninput="setCalcVal('doseInput',this.value)"
-onchange="renderWorkspace()">
-      h += `<div class="field" style="max-width:220px;"><label>Pump rate (mL/hr)</label><input type="number"
-id="rate-input"
-value="${cs.rateInput}"
-min="0"
-step="any"
-placeholder="0"
-oninput="setCalcVal('rateInput',this.value)"
-onchange="renderWorkspace()">
+      h += `<div class="field" style="max-width:220px;"><label>Ordered dose (${selDrug.doseUnit})</label><input type="number" id="dose-input" value="${cs.doseInput}" min="0" step="any" placeholder="0" oninput="setCalcVal('doseInput',this.value)"></div>`;
+    } else {
+      h += `<div class="field" style="max-width:220px;"><label>Pump rate (mL/hr)</label><input type="number" id="rate-input" value="${cs.rateInput}" min="0" step="any" placeholder="0" oninput="setCalcVal('rateInput',this.value)"></div>`;
     }
     const result = computeResult(selDrug, cs, pt.weightKg);
     if (result) {
@@ -712,7 +659,7 @@ function renderWorkspace() {
     <div class="pt-header">
       <span class="pt-name-display">${pt.label}</span>
       <button class="edit-label-btn" onclick="openModal('edit')" title="Edit label"><i class="ti ti-pencil"></i></button>
-      <button class="discharge-btn" onclick="discharge(${pt.id})">discharge</button>
+      ${patients.length > 1 ? `<button class="discharge-btn" onclick="discharge(${pt.id})">discharge</button>` : ''}
     </div>
     <p class="sec-label">Patient weight</p>
     <div class="row">
@@ -761,15 +708,7 @@ function selectDrug(id) { getPt().calcState = { drugId:id, mode:'dose', concIdx:
 function clearDrug() { getPt().calcState = { drugId:null, mode:'dose', concIdx:0, doseInput:'', rateInput:'' }; renderWorkspace(); }
 function setMode(m) { const cs=getPt().calcState; cs.mode=m; cs.doseInput=''; cs.rateInput=''; renderWorkspace(); }
 function setConc(i) { getPt().calcState.concIdx=i; renderWorkspace(); }
-function setCalcVal(f,v) {
-  getPt().calcState[f]=v;
-
-  clearTimeout(window.calcTimer);
-
-  window.calcTimer = setTimeout(() => {
-    renderWorkspace();
-  }, 300);
-}
+function setCalcVal(f,v) { getPt().calcState[f]=v; renderWorkspace(); }
 
 function addDrip() {
   const pt=getPt(); const cs=pt.calcState;
@@ -913,7 +852,7 @@ function quickTitrate(idx, delta){
 
   render();
 }
-
+function discharge(id) { patients=patients.filter(p=>p.id!==id); if(activeId===id) activeId=patients[0].id; render(); }
 
 function setReport(field, val) { getPt().report[field]=val; }
 
