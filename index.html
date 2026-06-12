@@ -732,6 +732,100 @@ function toggleLine(lineId) {
 function setLineField(lineId, fieldId, val) {
   getPt().report.lines[lineId].fields[fieldId]=val;
 }
+ function buildReportText(){
+
+  const pt = getPt();
+  const r = pt.report;
+
+  let txt = '';
+
+  txt += `Room: ${pt.label}\n`;
+
+  if(pt.weightKg){
+    txt += `Weight: ${pt.weightKg} kg\n`;
+  }
+
+  txt += '\n';
+
+  if(r.diagnosis){
+    txt += `Diagnosis: ${r.diagnosis}\n`;
+  }
+
+  if(r.attending){
+    txt += `Attending: ${r.attending}\n`;
+  }
+
+  txt += `Code Status: ${r.codeStatus}\n`;
+  txt += `Isolation: ${r.isolation}\n`;
+
+  if(r.allergies){
+    txt += `Allergies: ${r.allergies}\n`;
+  }
+
+  txt += '\n';
+
+  if(pt.activeDrops.length){
+
+    txt += 'ACTIVE DRIPS\n';
+
+    pt.activeDrops.forEach(drip=>{
+
+      txt += `${drip.name}: ${drip.dose} ${drip.doseUnit} (${drip.rate} mL/hr)`;
+
+      if(drip.lastTitration){
+        txt += `  Last change ${formatTime(drip.lastTitration)}`;
+      }
+
+      txt += '\n';
+    });
+
+    txt += '\n';
+  }
+
+  txt += 'LINES\n';
+
+  LINE_TYPES.forEach(lt=>{
+
+    const line = r.lines[lt.id];
+
+    if(line.checked){
+
+      txt += `• ${lt.label}\n`;
+
+    }
+
+  });
+
+  txt += '\n';
+
+  if(r.history){
+    txt += `History:\n${r.history}\n\n`;
+  }
+
+  if(r.consults){
+    txt += `Consults:\n${r.consults}\n\n`;
+  }
+
+  if(r.pending){
+    txt += `Pending:\n${r.pending}\n\n`;
+  }
+
+  if(r.notes){
+    txt += `Notes:\n${r.notes}\n\n`;
+  }
+
+  return txt;
+}
+
+function copyReport(){
+
+  const txt = buildReportText();
+
+  navigator.clipboard.writeText(txt);
+
+  alert('Shift report copied to clipboard');
+}
+ 
 
 if(!loadState()){
   const first = emptyPatient('');
