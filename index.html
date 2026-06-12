@@ -708,7 +708,9 @@ function selectDrug(id) { getPt().calcState = { drugId:id, mode:'dose', concIdx:
 function clearDrug() { getPt().calcState = { drugId:null, mode:'dose', concIdx:0, doseInput:'', rateInput:'' }; renderWorkspace(); }
 function setMode(m) { const cs=getPt().calcState; cs.mode=m; cs.doseInput=''; cs.rateInput=''; renderWorkspace(); }
 function setConc(i) { getPt().calcState.concIdx=i; renderWorkspace(); }
-function setCalcVal(f,v) { getPt().calcState[f]=v; renderWorkspace(); }
+function setCalcVal(f,v) {
+  getPt().calcState[f]=v;
+}
 
 function addDrip() {
   const pt=getPt(); const cs=pt.calcState;
