@@ -602,6 +602,79 @@ function addDrip() {
 
 function removeDrip(e,idx) { e.stopPropagation(); getPt().activeDrops.splice(idx,1); renderWorkspace(); }
 function toggleDetail(idx) { const d=getPt().activeDrops[idx]; d.expanded=!d.expanded; renderWorkspace(); }
+ function formatTime(ts){
+  if(!ts) return '';
+  return new Date(ts).toLocaleTimeString([],{
+    hour:'2-digit',
+    minute:'2-digit'
+  });
+}
+
+function recordTitration(drip, oldDose, newDose){
+
+  const now = new Date().toISOString();
+
+  drip.lastTitration = now;
+
+  if(!drip.titrationHistory){
+    drip.titrationHistory = [];
+  }
+
+  drip.titrationHistory.unshift({
+    timestamp: now,
+    oldDose,
+    newDose
+  });
+
+  drip.titrationHistory =
+    drip.titrationHistory.slice(0,10);
+}
+
+function quickTitrate(idx, delta){
+
+  const pt = getPt();
+  const drip = pt.activeDrops[idx];
+
+  const drug =
+    ALL_DRUGS.find(d => d.id === drip.drugId);
+
+  if(!drug) return;
+
+  const oldDose =
+    parseFloat(drip.dose);
+
+  const newDose =
+    oldDose + delta;
+
+  if(newDose <= 0) return;
+
+  const cs = {
+    mode:'dose',
+    concIdx: drip.concIdx,
+    doseInput: newDose.toString(),
+    rateInput:''
+  };
+
+  const result =
+    computeResult(
+      drug,
+      cs,
+      drip.wt
+    );
+
+  if(!result) return;
+
+  recordTitration(
+    drip,
+    oldDose,
+    newDose
+  );
+
+  drip.dose = result.dose;
+  drip.rate = result.rate;
+
+  render();
+}
 function discharge(id) { patients=patients.filter(p=>p.id!==id); if(activeId===id) activeId=patients[0].id; render(); }
 
 function setReport(field, val) { getPt().report[field]=val; }
