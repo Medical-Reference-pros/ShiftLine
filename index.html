@@ -415,8 +415,29 @@ function renderCalculator(pt) {
   } else {
     pt.activeDrops.forEach((drip, idx) => {
       h += `<div class="drip-row">
-        <div class="drip-row-main" onclick="toggleDetail(${idx})">
-          <div class="drip-col"><span class="drip-name">${drip.name}</span></div>
+        <div class="drip-col">
+
+  <span class="drip-name">
+    ${drip.name}
+
+    ${isRecentTitration(drip.lastTitration) ? `
+      <span style="
+        margin-left:8px;
+        background:#d97706;
+        color:white;
+        padding:2px 6px;
+        border-radius:999px;
+        font-size:10px;
+        font-weight:600;
+      ">
+        RECENT
+      </span>
+    ` : ''}
+
+  </span>
+
+</div>
+          
           <div class="drip-col" style="text-align:center"><span class="drip-val">${drip.dose}</span><br><span class="drip-unit">${drip.doseUnit}</span></div>
           <div class="drip-col" style="text-align:center"><span class="drip-val">${drip.rate}</span><br><span class="drip-unit">mL/hr</span></div>
           <i class="ti ti-chevron-down chevron${drip.expanded?' open':''}"></i>
