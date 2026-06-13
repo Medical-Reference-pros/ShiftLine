@@ -623,6 +623,22 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="report-scope-overlay" style="display:none;">
+  <div class="modal" style="max-width:320px;">
+    <h3>Send Shift Report</h3>
+    <p style="font-size:13px;color:var(--text2);line-height:1.6;margin:8px 0 14px;">Send the report for the current patient, or include all patients on your assignment?</p>
+    <div class="modal-btns" style="flex-direction:column;">
+      <button class="btn-primary" style="padding:11px;font-size:13px;" onclick="executeReport('current')">
+        <i class="ti ti-user" style="margin-right:5px;"></i>This Patient Only
+      </button>
+      <button class="btn-primary" style="padding:11px;font-size:13px;" onclick="executeReport('all')">
+        <i class="ti ti-users" style="margin-right:5px;"></i>All Patients
+      </button>
+      <button class="btn-secondary" style="padding:9px;font-size:13px;" onclick="closeReportScope()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-overlay" style="display:none;">
   <div class="modal">
     <h3 id="modal-title">Add patient</h3>
@@ -1100,13 +1116,13 @@ function renderReport(pt) {
   <button
     class="btn-primary"
     style="flex:1;padding:12px;"
-    onclick="copyReport()">
+    onclick="openReportScope('copy')">
     <i class="ti ti-clipboard-copy" style="margin-right:5px;"></i>Copy Report
   </button>
   <button
     class="btn-primary"
     style="flex:1;padding:12px;"
-    onclick="shareReport()">
+    onclick="openReportScope('share')">
     <i class="ti ti-share" style="margin-right:5px;"></i>Share Report
   </button>
 </div>`;
@@ -1537,11 +1553,52 @@ function showToast(msg, duration = 2200) {
   _toastTimer = setTimeout(() => el.classList.remove('show'), duration);
 }
 
-function copyReport(){
-  const txt = buildReportText();
+// ── Report scope picker ──
+let _reportAction = null; // 'copy' or 'share'
 
-  // iOS Safari silently corrupts ClipboardItem blobs even with text/plain —
-  // writeText() is the only reliable path on iPhone/iPad
+function openReportScope(action) {
+  _reportAction = action;
+  document.getElementById('report-scope-overlay').style.display = 'flex';
+}
+
+function closeReportScope() {
+  document.getElementById('report-scope-overlay').style.display = 'none';
+  _reportAction = null;
+}
+
+function buildAllPatientsReportText() {
+  const divider = '═'.repeat(32);
+  return patients.map(pt => {
+    // Temporarily switch active patient context to build each report
+    const saved = activeId;
+    activeId = pt.id;
+    const txt = buildReportText();
+    activeId = saved;
+    return txt;
+  }).join(`\n${divider}\n\n`);
+}
+
+function executeReport(scope) {
+  closeReportScope();
+  const txt = scope === 'all' ? buildAllPatientsReportText() : buildReportText();
+  const title = scope === 'all'
+    ? `Shift Report — All Patients`
+    : `Shift Report — ${getPt() ? getPt().label : 'Patient'}`;
+
+  if (_reportAction === 'share') {
+    if (navigator.share) {
+      navigator.share({ title, text: txt }).catch(e => {
+        if (e.name !== 'AbortError') showToast('Share failed — use Copy Report instead');
+      });
+    } else {
+      navigator.clipboard.writeText(txt).then(() => {
+        showToast('Report copied — sharing not supported in this browser');
+      });
+    }
+    return;
+  }
+
+  // copy
   if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
     navigator.clipboard.writeText(txt).then(() => {
       showToast('✓ Shift report copied to clipboard');
@@ -1551,7 +1608,6 @@ function copyReport(){
     return;
   }
 
-  // Non-iOS: ClipboardItem works correctly
   const blob = new Blob([txt], { type: 'text/plain' });
   const item = new ClipboardItem({ 'text/plain': blob });
   navigator.clipboard.write([item]).then(() => {
@@ -1565,24 +1621,12 @@ function copyReport(){
   });
 }
 
-async function shareReport(){
-  const pt = getPt();
-  const txt = buildReportText();
-  const title = `Shift Report — ${pt ? pt.label : 'Patient'}`;
+function copyReport(){
+  openReportScope('copy');
+}
 
-  if (navigator.share) {
-    try {
-      await navigator.share({ title, text: txt });
-    } catch(e) {
-      if (e.name !== 'AbortError') {
-        showToast('Share failed — use Copy Report instead');
-      }
-    }
-  } else {
-    navigator.clipboard.writeText(txt).then(() => {
-      showToast('Report copied — sharing not supported in this browser');
-    });
-  }
+async function shareReport(){
+  openReportScope('share');
 }
  
 
