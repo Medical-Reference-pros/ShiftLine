@@ -9,7 +9,7 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeeee9;
-    --text: #1a1a18; --text2: #6b6b66; --text3: #9b9b95;
+    --text: #1a1a18; --text2: #4a4a46; --text3: #888882;
     --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.25);
     --info-bg: #e6f1fb; --info-text: #0c447c; --info-border: rgba(12,68,124,0.3);
     --warn-bg: #faeeda; --warn-text: #633806;
@@ -20,7 +20,7 @@
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2b;
-      --text: #f0f0ec; --text2: #a0a09a; --text3: #6b6b66;
+      --text: #f0f0ec; --text2: #b8b8b2; --text3: #7a7a74;
       --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.22);
       --info-bg: #0c2540; --info-text: #85b7eb; --info-border: rgba(133,183,235,0.3);
       --warn-bg: #2a1e08; --warn-text: #fac775;
@@ -31,6 +31,51 @@
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; padding: 1rem; }
   .app { max-width: 680px; margin: 0 auto; }
   h1 { font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 1rem; }
+
+  /* ── Logo header ── */
+  .app-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 1.25rem;
+    padding: 14px 16px;
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+  .logo-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #0c447c 0%, #1a6eb5 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(12,68,124,0.28);
+  }
+  .logo-icon svg { display: block; }
+  .logo-text-group { display: flex; flex-direction: column; gap: 1px; }
+  .logo-wordmark {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    color: var(--text);
+  }
+  .logo-wordmark .word-shift { color: #0c6ebf; }
+  .logo-wordmark .word-line  { color: var(--text); }
+  .logo-sub {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+
+  /* ── Text contrast fixes ── */
+  /* All field labels, sec-labels, and secondary text to full --text2 (was already var(--text2) but --text2 value was too washed) */
   .pt-tab-bar { display: flex; gap: 6px; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
   .pt-tab { padding: 6px 14px; border: 0.5px solid var(--border2); border-radius: var(--radius); font-size: 13px; cursor: pointer; background: var(--bg); color: var(--text2); white-space: nowrap; }
   .pt-tab:hover { background: var(--bg2); }
@@ -141,14 +186,156 @@
   .modal-btns button { flex: 1; padding: 9px; border-radius: var(--radius); font-size: 13px; cursor: pointer; }
   .btn-primary { background: var(--info-bg); color: var(--info-text); border: 0.5px solid var(--info-border); font-weight: 500; }
   .btn-secondary { background: transparent; color: var(--text2); border: 0.5px solid var(--border2); }
+  /* ── Feedback button ── */
+  .feedback-fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 90;
+    background: var(--bg);
+    border: 0.5px solid var(--border2);
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    transition: background 0.15s;
+  }
+  .feedback-fab:hover { background: var(--bg2); color: var(--text); }
+  /* ── Titration buttons ── */
+  .titrate-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    min-width: 52px;
+    line-height: 1;
+  }
+  .titrate-btn:hover { background: var(--bg3); }
+  .titrate-btn.neg { color: var(--danger-text); border-color: rgba(121,31,31,0.3); }
+  .titrate-btn.neg:hover { background: var(--danger-bg); }
+  .titrate-btn.pos { color: var(--success-text); border-color: rgba(59,109,17,0.3); }
+  .titrate-btn.pos:hover { background: var(--success-bg); }
+  .titrate-btn.undo-btn {
+    color: var(--text2);
+    border-style: dashed;
+    font-size: 13px;
+    min-width: auto;
+    padding: 10px 14px;
+  }
+  .titrate-btn.undo-btn:hover { background: var(--warn-bg); color: var(--warn-text); }
+  .titrate-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    align-items: center;
+  }
+  /* ── Feedback modal ── */
+  .feedback-modal { max-width: 360px; }
+  .feedback-modal textarea { min-height: 100px; margin-bottom: 4px; }
+  .feedback-char { font-size: 11px; color: var(--text3); text-align: right; margin-bottom: 8px; }
+
+  /* ── Install banner ── */
+  .install-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--info-bg);
+    border: 0.5px solid var(--info-border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    margin-bottom: 0.75rem;
+    font-size: 13px;
+    color: var(--info-text);
+    line-height: 1.45;
+  }
+  .install-banner-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .install-banner-body { flex: 1; }
+  .install-banner-title { font-weight: 600; margin-bottom: 2px; }
+  .install-banner-text { color: var(--info-text); opacity: 0.9; }
+  .install-banner-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .install-banner-btn {
+    padding: 5px 12px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 0.5px solid var(--info-border);
+    background: var(--info-text);
+    color: white;
+  }
+  .install-banner-dismiss {
+    padding: 5px 10px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    cursor: pointer;
+    border: 0.5px solid var(--info-border);
+    background: transparent;
+    color: var(--info-text);
+  }
 </style>
 </head>
 <body>
 <div class="app">
-  <h1>ShiftLine</h1>
+<div class="app-header">
+    <div class="logo-icon">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Pulse / ECG line icon -->
+        <polyline points="1,11 5,11 7,5 9,17 11,9 13,13 15,11 21,11"
+          stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="logo-text-group">
+      <div class="logo-wordmark"><span class="word-shift">Shift</span><span class="word-line">Line</span></div>
+      <div class="logo-sub">ICU Report Assistant</div>
+    </div>
+  </div>
+  <!-- Install banner: injected by JS if not already installed and not dismissed -->
+  <div id="install-banner" class="install-banner" style="display:none;">
+    <div class="install-banner-icon"><i class="ti ti-device-mobile"></i></div>
+    <div class="install-banner-body">
+      <div class="install-banner-title" id="install-banner-title">Add ShiftLine to your home screen</div>
+      <div class="install-banner-text" id="install-banner-text"></div>
+      <div class="install-banner-actions">
+        <button class="install-banner-btn" id="install-banner-btn" onclick="installApp()"></button>
+        <button class="install-banner-dismiss" onclick="dismissInstallBanner()">Not now</button>
+      </div>
+    </div>
+  </div>
+
   <div class="pt-tab-bar" id="tab-bar"></div>
   <div id="workspace"></div>
   <p class="disclaimer">Reference tool only. Verify all calculations against institutional protocols and current drug references. Not for diagnostic or prescriptive use. Propofol calculations based on selected concentration — confirm formulation with pharmacy before use.</p>
+</div>
+
+<!-- Feedback floating button -->
+<button class="feedback-fab" onclick="openFeedback()" title="Send feedback">
+  <i class="ti ti-message-circle"></i> Feedback
+</button>
+
+<!-- Feedback modal -->
+<div class="modal-overlay" id="feedback-overlay" style="display:none;">
+  <div class="modal feedback-modal">
+    <h3>Send Feedback</h3>
+    <div class="field">
+      <label>Your comments or suggestions</label>
+      <textarea id="feedback-text" placeholder="Bug report, feature request, general thoughts..." maxlength="1000" oninput="document.getElementById('feedback-chars').textContent=this.value.length+'/1000'"></textarea>
+      <div class="feedback-char" id="feedback-chars">0/1000</div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeFeedback()">Cancel</button>
+      <button class="btn-primary" onclick="submitFeedback()">Send</button>
+    </div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="modal-overlay" style="display:none;">
@@ -306,7 +493,7 @@ function openModal(mode) {
   document.getElementById('modal-title').textContent = mode === 'add' ? 'Add patient' : 'Edit patient label';
   document.getElementById('modal-label').textContent = mode === 'add' ? 'Room / Bed Identifier' : 'Update label';
   document.getElementById('modal-confirm-btn').textContent = mode === 'add' ? 'Add' : 'Save';
-  input.value = mode === 'edit' ? getPt().label : '';
+  input.value = mode === 'edit' ? (getPt()?.label || '') : '';
   input.placeholder = 'e.g. 412A, CV7, SICU4';
   overlay.style.display = 'flex';
   setTimeout(() => { input.focus(); if (mode === 'edit') input.select(); }, 50);
@@ -431,32 +618,14 @@ function renderCalculator(pt) {
 
 ${drip.drugId !== 'custom' ? `
 
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
-
-<button onclick="event.stopPropagation();quickTitrate(${idx},-5)">
--5
-</button>
-
-<button onclick="event.stopPropagation();quickTitrate(${idx},-2)">
--2
-</button>
-
-<button onclick="event.stopPropagation();quickTitrate(${idx},-1)">
--1
-</button>
-
-<button onclick="event.stopPropagation();quickTitrate(${idx},1)">
-+1
-</button>
-
-<button onclick="event.stopPropagation();quickTitrate(${idx},2)">
-+2
-</button>
-
-<button onclick="event.stopPropagation();quickTitrate(${idx},5)">
-+5
-</button>
-
+<div class="titrate-row">
+  <button class="titrate-btn neg" onclick="event.stopPropagation();quickTitrate(${idx},-5)">−5</button>
+  <button class="titrate-btn neg" onclick="event.stopPropagation();quickTitrate(${idx},-2)">−2</button>
+  <button class="titrate-btn neg" onclick="event.stopPropagation();quickTitrate(${idx},-1)">−1</button>
+  <button class="titrate-btn pos" onclick="event.stopPropagation();quickTitrate(${idx},+1)">+1</button>
+  <button class="titrate-btn pos" onclick="event.stopPropagation();quickTitrate(${idx},+2)">+2</button>
+  <button class="titrate-btn pos" onclick="event.stopPropagation();quickTitrate(${idx},+5)">+5</button>
+  ${drip.undoSnapshot ? `<button class="titrate-btn undo-btn" onclick="event.stopPropagation();undoTitrate(${idx})" title="Undo last change"><i class="ti ti-arrow-back-up"></i> Undo</button>` : ''}
 </div>
 
 ` : `
@@ -537,9 +706,9 @@ ${drip.titrationHistory && drip.titrationHistory.length ? `
       <button class="mode-btn${cs.mode==='rate'?' active':''}" onclick="setMode('rate')">Rate → Dose</button>
     </div>`;
     if (cs.mode === 'dose') {
-      h += `<div class="field" style="max-width:220px;"><label>Ordered dose (${selDrug.doseUnit})</label><input type="number" id="dose-input" value="${cs.doseInput}" min="0" step="any" placeholder="0" oninput="setCalcVal('doseInput',this.value)"></div>`;
+      h += `<div class="field" style="max-width:220px;"><label>Ordered dose (${selDrug.doseUnit})</label><input type="text" inputmode="decimal" id="dose-input" value="${cs.doseInput}" placeholder="0" oninput="setCalcVal('doseInput',this.value)"></div>`;
     } else {
-      h += `<div class="field" style="max-width:220px;"><label>Pump rate (mL/hr)</label><input type="number" id="rate-input" value="${cs.rateInput}" min="0" step="any" placeholder="0" oninput="setCalcVal('rateInput',this.value)"></div>`;
+      h += `<div class="field" style="max-width:220px;"><label>Pump rate (mL/hr)</label><input type="text" inputmode="decimal" id="rate-input" value="${cs.rateInput}" placeholder="0" oninput="setCalcVal('rateInput',this.value)"></div>`;
     }
     const result = computeResult(selDrug, cs, pt.weightKg);
     if (result) {
@@ -636,12 +805,18 @@ function renderReport(pt) {
     </div>
   </div>`;
  h += `
-<div class="card">
+<div class="card" style="display:flex;gap:10px;">
   <button
     class="btn-primary"
-    style="width:100%;padding:12px;"
+    style="flex:1;padding:12px;"
     onclick="copyReport()">
-    Copy Shift Report
+    <i class="ti ti-clipboard-copy" style="margin-right:5px;"></i>Copy Report
+  </button>
+  <button
+    class="btn-primary"
+    style="flex:1;padding:12px;"
+    onclick="shareReport()">
+    <i class="ti ti-share" style="margin-right:5px;"></i>Share Report
   </button>
 </div>`;
 
@@ -652,14 +827,27 @@ function renderReport(pt) {
 function renderWorkspace() {
   const ws = document.getElementById('workspace');
   const pt = getPt();
-  if (!pt) { ws.innerHTML = ''; return; }
+  if (!pt) {
+    ws.innerHTML = `
+      <div class="card" style="text-align:center; padding: 2.5rem 1.5rem;">
+        <div style="font-size:32px; margin-bottom:0.75rem; color:var(--text3);">
+          <i class="ti ti-clipboard-heart"></i>
+        </div>
+        <div style="font-size:16px; font-weight:500; color:var(--text); margin-bottom:0.4rem;">No active patients</div>
+        <div style="font-size:13px; color:var(--text2); margin-bottom:1.5rem;">Add a patient to get started.</div>
+        <button class="btn-primary" style="padding:10px 28px; font-size:14px; border-radius:var(--radius); cursor:pointer;" onclick="openModal('add')">
+          <i class="ti ti-plus"></i> Add patient
+        </button>
+      </div>`;
+    return;
+  }
   let h = '';
 
   h += `<div class="card">
     <div class="pt-header">
       <span class="pt-name-display">${pt.label}</span>
       <button class="edit-label-btn" onclick="openModal('edit')" title="Edit label"><i class="ti ti-pencil"></i></button>
-      ${patients.length > 1 ? `<button class="discharge-btn" onclick="discharge(${pt.id})">discharge</button>` : ''}
+      <button class="discharge-btn" onclick="discharge(${pt.id})">discharge</button>
     </div>
     <p class="sec-label">Patient weight</p>
     <div class="row">
@@ -708,7 +896,42 @@ function selectDrug(id) { getPt().calcState = { drugId:id, mode:'dose', concIdx:
 function clearDrug() { getPt().calcState = { drugId:null, mode:'dose', concIdx:0, doseInput:'', rateInput:'' }; renderWorkspace(); }
 function setMode(m) { const cs=getPt().calcState; cs.mode=m; cs.doseInput=''; cs.rateInput=''; renderWorkspace(); }
 function setConc(i) { getPt().calcState.concIdx=i; renderWorkspace(); }
-function setCalcVal(f,v) { getPt().calcState[f]=v; renderWorkspace(); }
+function setCalcVal(f,v) {
+  const pt = getPt();
+  pt.calcState[f] = v;
+  saveState();
+  // Re-render only the result box and add-drip button, not the whole workspace
+  // This preserves input focus and allows decimals/partial values mid-type
+  const drug = pt.calcState.drugId ? ALL_DRUGS.find(d => d.id === pt.calcState.drugId) : null;
+  if (!drug) return;
+  const result = computeResult(drug, pt.calcState, pt.weightKg);
+  const resultEl = document.querySelector('.result-box');
+  const addBtnEl = document.querySelector('.add-drip-btn');
+  const noWtEl = document.querySelector('.result-box .result-sub');
+  if (result) {
+    if (resultEl) {
+      resultEl.innerHTML = `<div class="result-main">${result.main}</div><div class="result-sub">${result.sub}</div>`;
+    } else {
+      // Result box doesn't exist yet — need a full render
+      renderWorkspace();
+      return;
+    }
+    if (!addBtnEl) {
+      // Add button doesn't exist yet — need a full render
+      renderWorkspace();
+      return;
+    }
+  } else {
+    if (resultEl) {
+      if (drug.weightBased && !pt.weightKg) {
+        resultEl.innerHTML = `<div class="result-sub">Enter patient weight above to calculate</div>`;
+      } else {
+        resultEl.innerHTML = '';
+      }
+    }
+    if (addBtnEl) addBtnEl.style.display = 'none';
+  }
+}
 
 function addDrip() {
   const pt=getPt(); const cs=pt.calcState;
@@ -841,6 +1064,14 @@ function quickTitrate(idx, delta){
 
   if(!result) return;
 
+  // Save undo snapshot before committing
+  drip.undoSnapshot = {
+    dose: drip.dose,
+    rate: drip.rate,
+    lastTitration: drip.lastTitration,
+    titrationHistory: drip.titrationHistory ? [...drip.titrationHistory] : []
+  };
+
   recordTitration(
     drip,
     oldDose,
@@ -852,7 +1083,27 @@ function quickTitrate(idx, delta){
 
   render();
 }
-function discharge(id) { patients=patients.filter(p=>p.id!==id); if(activeId===id) activeId=patients[0].id; render(); }
+
+function undoTitrate(idx){
+  const pt = getPt();
+  const drip = pt.activeDrops[idx];
+
+  if(!drip.undoSnapshot) return;
+
+  // Restore previous state — do NOT add a history entry (this was a mistake)
+  drip.dose = drip.undoSnapshot.dose;
+  drip.rate = drip.undoSnapshot.rate;
+  drip.lastTitration = drip.undoSnapshot.lastTitration;
+  drip.titrationHistory = drip.undoSnapshot.titrationHistory;
+  drip.undoSnapshot = null; // One-level undo only
+
+  render();
+}
+function discharge(id) {
+  patients = patients.filter(p => p.id !== id);
+  if (activeId === id) activeId = patients.length > 0 ? patients[0].id : null;
+  render();
+}
 
 function setReport(field, val) { getPt().report[field]=val; }
 
@@ -951,22 +1202,138 @@ function setLineField(lineId, fieldId, val) {
 }
 
 function copyReport(){
-
   const txt = buildReportText();
-
   navigator.clipboard.writeText(txt);
-
   alert('Shift report copied to clipboard');
+}
+
+async function shareReport(){
+  const pt = getPt();
+  const txt = buildReportText();
+  const title = `Shift Report — ${pt ? pt.label : 'Patient'}`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text: txt });
+    } catch(e) {
+      // User cancelled — silently ignore; only alert on real errors
+      if (e.name !== 'AbortError') {
+        alert('Share failed. Use Copy Report instead.');
+      }
+    }
+  } else {
+    // Desktop fallback: copy + notify
+    navigator.clipboard.writeText(txt).then(() => {
+      alert('Sharing is not supported in this browser.\nReport copied to clipboard — paste it wherever you need.');
+    });
+  }
 }
  
 
+// ── Feedback ──
+const FEEDBACK_EMAIL = 'your@email.com'; // ← replace with your address
+
+function openFeedback() {
+  document.getElementById('feedback-text').value = '';
+  document.getElementById('feedback-chars').textContent = '0/1000';
+  document.getElementById('feedback-overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('feedback-text').focus(), 50);
+}
+
+function closeFeedback() {
+  document.getElementById('feedback-overlay').style.display = 'none';
+}
+
+function submitFeedback() {
+  const msg = document.getElementById('feedback-text').value.trim();
+  if (!msg) { document.getElementById('feedback-text').focus(); return; }
+  const subject = encodeURIComponent('ShiftLine Feedback');
+  const body = encodeURIComponent(msg);
+  window.location.href = `mailto:${FEEDBACK_EMAIL}?subject=${subject}&body=${body}`;
+  closeFeedback();
+}
+
 if(!loadState()){
-  const first = emptyPatient('');
-  patients.push(first);
-  activeId = first.id;
-  openModal('edit');
+  // Fresh start — show the landing page, let user add their first patient
 }
 render();
+
+// ── Install banner ──
+let deferredInstallPrompt = null;
+
+// Capture the Android install prompt before it fires
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  showInstallBanner();
+});
+
+function isRunningAsPWA() {
+  return window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+}
+
+function getOS() {
+  const ua = navigator.userAgent;
+  if (/iphone|ipad|ipod/i.test(ua)) return 'ios';
+  if (/android/i.test(ua)) return 'android';
+  return 'other';
+}
+
+function showInstallBanner() {
+  if (isRunningAsPWA()) return; // already installed
+  if (localStorage.getItem('installBannerDismissed')) return; // user said not now
+
+  const os = getOS();
+  const banner = document.getElementById('install-banner');
+  const text = document.getElementById('install-banner-text');
+  const btn = document.getElementById('install-banner-btn');
+
+  if (os === 'ios') {
+    text.textContent = 'Tap the Share button (□↑) at the bottom of your browser, then choose "Add to Home Screen" for quick access.';
+    btn.textContent = 'Got it';
+    btn.onclick = dismissInstallBanner;
+  } else if (os === 'android' && deferredInstallPrompt) {
+    text.textContent = 'Install ShiftLine on your home screen for quick one-tap access during your shift.';
+    btn.textContent = 'Install';
+    btn.onclick = installApp;
+  } else if (os === 'android') {
+    text.textContent = 'Tap the menu (⋮) in your browser, then choose "Add to Home Screen" for quick access.';
+    btn.textContent = 'Got it';
+    btn.onclick = dismissInstallBanner;
+  } else {
+    // Desktop or unknown — skip the banner, not relevant
+    return;
+  }
+
+  banner.style.display = 'flex';
+}
+
+function installApp() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then((result) => {
+      if (result.outcome === 'accepted') {
+        dismissInstallBanner();
+      }
+      deferredInstallPrompt = null;
+    });
+  } else {
+    dismissInstallBanner();
+  }
+}
+
+function dismissInstallBanner() {
+  document.getElementById('install-banner').style.display = 'none';
+  localStorage.setItem('installBannerDismissed', '1');
+}
+
+// Show on page load for iOS (Android fires beforeinstallprompt event instead)
+window.addEventListener('load', () => {
+  if (getOS() === 'ios' && !isRunningAsPWA()) {
+    setTimeout(showInstallBanner, 800); // slight delay so page renders first
+  }
+});
 </script>
 </body>
 </html>
