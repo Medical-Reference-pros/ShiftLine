@@ -654,6 +654,35 @@
   </div>
 </div>
 
+<!-- Custom drip modal -->
+<div class="modal-overlay" id="custom-drip-overlay" style="display:none;">
+  <div class="modal" style="max-width:320px;">
+    <h3 id="custom-drip-title">Add Custom Drip</h3>
+    <div class="field" style="margin-bottom:8px;">
+      <label>Drip name</label>
+      <input type="text" id="cd-name" placeholder="e.g. Vasopressin, Nicardipine" maxlength="40">
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <div class="field">
+        <label>Dose</label>
+        <input type="text" inputmode="decimal" id="cd-dose" placeholder="e.g. 0.04">
+      </div>
+      <div class="field">
+        <label>Units</label>
+        <input type="text" id="cd-units" placeholder="e.g. units/min">
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:4px;">
+      <label>Rate (mL/hr)</label>
+      <input type="text" inputmode="decimal" id="cd-rate" placeholder="e.g. 6">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeCustomDripModal()">Cancel</button>
+      <button class="btn-primary" id="cd-confirm-btn" onclick="confirmCustomDrip()">Add Drip</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const DRUGS = {
   vasopressors: [
@@ -806,56 +835,50 @@ function openModal(mode) {
 }
 
 function cancelModal() { document.getElementById('modal-overlay').style.display = 'none'; modalMode = null; }
- function openCustomDrip(){
 
-  const name =
-    prompt('Drip name');
+let _customDripEditIdx = null;
 
-  if(!name) return;
+function openCustomDrip() {
+  _customDripEditIdx = null;
+  document.getElementById('custom-drip-title').textContent = 'Add Custom Drip';
+  document.getElementById('cd-confirm-btn').textContent = 'Add Drip';
+  document.getElementById('cd-name').value = '';
+  document.getElementById('cd-dose').value = '';
+  document.getElementById('cd-units').value = '';
+  document.getElementById('cd-rate').value = '';
+  document.getElementById('custom-drip-overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('cd-name').focus(), 50);
+}
 
-  const dose =
-    prompt('Dose');
+function closeCustomDripModal() {
+  document.getElementById('custom-drip-overlay').style.display = 'none';
+  _customDripEditIdx = null;
+}
 
-  if(!dose) return;
-
-  const units =
-    prompt('Units');
-
-  if(!units) return;
-
-  const rate =
-    prompt('Rate (mL/hr)');
-
-  if(!rate) return;
-
-  getPt().activeDrops.push({
-
-    name,
-
-    drugId:'custom',
-
-    dose,
-
-    doseUnit:units,
-
-    rate,
-
-    concLabel:'Custom',
-
-    concIdx:0,
-
-    wt:null,
-
-    mode:'custom',
-
-    expanded:false,
-
-    lastTitration:null,
-
-    titrationHistory:[]
-
-  });
-
+function confirmCustomDrip() {
+  const name  = document.getElementById('cd-name').value.trim();
+  const dose  = document.getElementById('cd-dose').value.trim();
+  const units = document.getElementById('cd-units').value.trim();
+  const rate  = document.getElementById('cd-rate').value.trim();
+  if (!name || !dose || !units || !rate) {
+    showToast('Please fill in all fields');
+    return;
+  }
+  if (_customDripEditIdx !== null) {
+    const drip = getPt().activeDrops[_customDripEditIdx];
+    drip.name = name;
+    drip.dose = dose;
+    drip.doseUnit = units;
+    drip.rate = rate;
+    drip.lastTitration = new Date().toISOString();
+  } else {
+    getPt().activeDrops.push({
+      name, drugId:'custom', dose, doseUnit:units, rate,
+      concLabel:'Custom', concIdx:0, wt:null, mode:'custom',
+      expanded:false, lastTitration:null, titrationHistory:[]
+    });
+  }
+  closeCustomDripModal();
   render();
 }
 
@@ -1129,7 +1152,10 @@ function renderReport(pt) {
             ${f.options.map(o=>`<option${val===o?' selected':''}>${o}</option>`).join('')}
           </select>`;
         } else if (f.type === 'date') {
-          h += `<input type="date" value="${val}" onchange="setLineField('${lt.id}','${f.id}',this.value)">`;
+          const days = val ? Math.floor((Date.now() - new Date(val + 'T12:00:00')) / 86400000) : null;
+          const ageColor = days === null ? '' : days >= 4 ? 'color:var(--danger-text);font-weight:500;' : days >= 3 ? 'color:var(--warn-text);font-weight:500;' : 'color:var(--text3);';
+          const ageLabel = days === null ? '' : days === 0 ? ' <span style="font-size:11px;'+ageColor+'">today</span>' : ` <span style="font-size:11px;${ageColor}">${days}d ago</span>`;
+          h += `<input type="date" value="${val}" onchange="setLineField('${lt.id}','${f.id}',this.value);renderWorkspace();">${ageLabel}`;
         } else {
           h += `<input type="text" value="${esc(val)}" placeholder="${f.placeholder||''}" oninput="setLineField('${lt.id}','${f.id}',this.value)">`;
         }
@@ -1211,6 +1237,37 @@ function renderWorkspace() {
       </div>
     </div>
     ${(pt.weightType && pt.weightType !== 'Actual') ? `<div class="conc-note" style="margin-top:6px;"><i class="ti ti-alert-triangle"></i> Using <strong>${pt.weightType}</strong> weight — verify dosing weight per institutional protocol for each drug (phenylephrine, dexmedetomidine, propofol dosing may differ).</div>` : ''}
+    <div style="margin-top:10px;">
+      <button class="clear-link" style="font-size:12px;color:var(--info-text);" onclick="toggleIBW(${pt.id})">
+        <i class="ti ti-calculator" style="font-size:12px;"></i>
+        ${pt.ibwOpen ? 'Hide IBW calculator' : 'Calculate IBW / Adjusted weight'}
+      </button>
+    </div>
+    ${pt.ibwOpen ? `
+    <div style="margin-top:10px;padding:10px 12px;background:var(--bg2);border-radius:var(--radius);border:0.5px solid var(--border);">
+      <p class="sec-label" style="margin-bottom:8px;">IBW Calculator (Devine Formula)</p>
+      <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+        <div class="field" style="max-width:120px;">
+          <label>Height</label>
+          <input type="text" inputmode="decimal" id="ibw-height" placeholder="e.g. 70" oninput="calcIBW()">
+        </div>
+        <div class="field" style="max-width:100px;">
+          <label>Unit</label>
+          <select id="ibw-unit" onchange="calcIBW()">
+            <option value="in">Inches</option>
+            <option value="cm">cm</option>
+          </select>
+        </div>
+        <div class="field" style="max-width:100px;">
+          <label>Sex</label>
+          <select id="ibw-sex" onchange="calcIBW()">
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
+        </div>
+      </div>
+      <div id="ibw-result" style="margin-top:8px;font-size:13px;color:var(--text2);"></div>
+    </div>` : ''}
   </div>`;
 
   h += `<div class="workspace-tabs">
@@ -1252,7 +1309,63 @@ function setWeightType(val) {
   if (!pt) return;
   pt.weightType = val;
   saveState();
-  // Re-render just the weight card hint (lightweight — re-render full workspace)
+  render();
+}
+
+function toggleIBW(id) {
+  const pt = getPt(id);
+  if (!pt) return;
+  pt.ibwOpen = !pt.ibwOpen;
+  render();
+}
+
+function calcIBW() {
+  const heightVal = parseFloat(document.getElementById('ibw-height')?.value);
+  const unit = document.getElementById('ibw-unit')?.value;
+  const sex  = document.getElementById('ibw-sex')?.value;
+  const result = document.getElementById('ibw-result');
+  if (!result) return;
+  if (!heightVal || heightVal <= 0) { result.innerHTML = ''; return; }
+
+  // Convert to inches for Devine formula
+  const heightIn = unit === 'cm' ? heightVal / 2.54 : heightVal;
+  const inchesOver5ft = heightIn - 60;
+
+  if (inchesOver5ft < 0) {
+    result.innerHTML = `<span style="color:var(--warn-text);">Height below 5 ft — Devine formula not validated below this threshold.</span>`;
+    return;
+  }
+
+  const ibw = sex === 'M'
+    ? 50 + 2.3 * inchesOver5ft
+    : 45.5 + 2.3 * inchesOver5ft;
+
+  const actualKg = parseFloat(getPt()?.weightKg) || null;
+  const adj = actualKg && actualKg > ibw
+    ? (ibw + 0.4 * (actualKg - ibw)).toFixed(1)
+    : null;
+
+  result.innerHTML = `
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:6px;">
+      <div><span style="color:var(--text3);font-size:11px;">IBW</span><br><strong style="font-size:15px;">${ibw.toFixed(1)} kg</strong></div>
+      ${adj ? `<div><span style="color:var(--text3);font-size:11px;">Adjusted (ABW)</span><br><strong style="font-size:15px;">${adj} kg</strong></div>` : ''}
+    </div>
+    ${!actualKg ? `<div style="font-size:11px;color:var(--text3);">Enter actual weight above to calculate Adjusted weight.</div>` : ''}
+    ${adj ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+      <button class="mode-btn" style="font-size:11px;padding:4px 10px;" onclick="applyIBW(${ibw.toFixed(1)},'Ideal (IBW)')">Use IBW</button>
+      <button class="mode-btn" style="font-size:11px;padding:4px 10px;" onclick="applyIBW(${adj},'Adjusted')">Use Adjusted</button>
+    </div>` : `<div style="margin-top:4px;">
+      <button class="mode-btn" style="font-size:11px;padding:4px 10px;" onclick="applyIBW(${ibw.toFixed(1)},'Ideal (IBW)')">Use IBW</button>
+    </div>`}
+  `;
+}
+
+function applyIBW(kg, type) {
+  const pt = getPt();
+  if (!pt) return;
+  pt.weightKg = kg.toString();
+  pt.weightType = type;
+  pt.ibwOpen = false;
   render();
 }
 
@@ -1341,43 +1454,17 @@ function addDrip() {
   pt.calcState={ drugId:null, mode:'dose', concIdx:0, doseInput:'', rateInput:'' };
   render();
 }
- function editCustomDrip(idx){
-
-  const drip =
-    getPt().activeDrops[idx];
-
-  const dose =
-    prompt(
-      'Dose',
-      drip.dose
-    );
-
-  if(dose === null) return;
-
-  const units =
-    prompt(
-      'Units',
-      drip.doseUnit
-    );
-
-  if(units === null) return;
-
-  const rate =
-    prompt(
-      'Rate (mL/hr)',
-      drip.rate
-    );
-
-  if(rate === null) return;
-
-  drip.dose = dose;
-  drip.doseUnit = units;
-  drip.rate = rate;
-
-  drip.lastTitration =
-    new Date().toISOString();
-
-  render();
+function editCustomDrip(idx) {
+  const drip = getPt().activeDrops[idx];
+  _customDripEditIdx = idx;
+  document.getElementById('custom-drip-title').textContent = 'Edit Custom Drip';
+  document.getElementById('cd-confirm-btn').textContent = 'Save Changes';
+  document.getElementById('cd-name').value = drip.name || '';
+  document.getElementById('cd-dose').value = drip.dose || '';
+  document.getElementById('cd-units').value = drip.doseUnit || '';
+  document.getElementById('cd-rate').value = drip.rate || '';
+  document.getElementById('custom-drip-overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('cd-name').focus(), 50);
 }
 
 function removeDrip(e,idx) { e.stopPropagation(); getPt().activeDrops.splice(idx,1); renderWorkspace(); }
@@ -1501,8 +1588,13 @@ function setLineField(lineId, fieldId, val) {
   const pt = getPt();
   const r = pt.report;
 
+  const now = new Date();
+  const stamp = now.toLocaleDateString([], {month:'short',day:'numeric',year:'numeric'})
+    + ' ' + now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
   let txt = '';
 
+  txt += `Report generated: ${stamp}\n\n`;
   txt += `Room: ${pt.label}\n`;
 
   if(pt.weightKg){
