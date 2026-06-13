@@ -23,7 +23,7 @@
     display: 'standalone',
     background_color: '#ffffff',
     theme_color: '#0c447c',
-    icons: icons: [
+    icons: [
   {
     src: 'https://medical-reference-pros.github.io/ShiftLine/icon-192.png',
     sizes: '192x192',
@@ -1534,6 +1534,19 @@ function showToast(msg, duration = 2200) {
 
 function copyReport(){
   const txt = buildReportText();
+
+  // iOS Safari silently corrupts ClipboardItem blobs even with text/plain —
+  // writeText() is the only reliable path on iPhone/iPad
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+    navigator.clipboard.writeText(txt).then(() => {
+      showToast('✓ Shift report copied to clipboard');
+    }).catch(() => {
+      showToast('Copy failed — try again');
+    });
+    return;
+  }
+
+  // Non-iOS: ClipboardItem works correctly
   const blob = new Blob([txt], { type: 'text/plain' });
   const item = new ClipboardItem({ 'text/plain': blob });
   navigator.clipboard.write([item]).then(() => {
