@@ -1,9 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><link rel="manifest" href="manifest.json">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ShiftLine</title>
+<link rel="manifest" id="pwa-manifest">
+<meta name="theme-color" content="#0c447c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ShiftLine">
+<script>
+// Inline PWA manifest injected as a blob so the single-file app has no external dependency
+(function() {
+  const manifest = {
+    name: 'ShiftLine',
+    short_name: 'ShiftLine',
+    description: 'ICU shift report and drip calculator for bedside clinicians',
+    start_url: './',
+    display: 'standalone',
+    background_color: '#ffffff',
+    theme_color: '#0c447c',
+    icons: [
+      {
+        src: 'icon-192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'any maskable'
+      },
+      {
+        src: 'icon-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'any maskable'
+      }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+  const url = URL.createObjectURL(blob);
+  document.getElementById('pwa-manifest').href = url;
+})();
+</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -392,6 +429,30 @@
 
   /* ── Modal hint text ── */
   .modal-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  /* ── Toast notification ── */
+  #toast {
+    position: fixed;
+    bottom: 72px;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    background: var(--text);
+    color: var(--bg);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    white-space: nowrap;
+  }
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 </style>
 </head>
 <body>
@@ -425,8 +486,11 @@
   <div class="pt-tab-bar" id="tab-bar"></div>
   <div id="workspace"></div>
   <p class="disclaimer">Reference tool only. Verify all calculations against institutional protocols and current drug references. Not for diagnostic or prescriptive use. Propofol calculations based on selected concentration — confirm formulation with pharmacy before use.</p>
-  <p class="app-version">ShiftLine v1.0 &nbsp;·&nbsp; <button style="background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;padding:0;text-decoration:underline;" onclick="showTos()">Terms of Use</button></p>
+  <p class="app-version">ShiftLine v1.0 &nbsp;·&nbsp; <button style="background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;padding:0;text-decoration:underline;" onclick="showTos()">Terms of Use</button> &nbsp;·&nbsp; <button style="background:none;border:none;font-size:11px;color:var(--danger-text);cursor:pointer;padding:0;text-decoration:underline;" onclick="openEndShift()">End Shift / Clear All</button></p>
 </div>
+
+<!-- Toast notification -->
+<div id="toast"></div>
 
 <!-- Feedback floating button -->
 <button class="feedback-fab" onclick="openFeedback()" title="Send feedback">
@@ -542,6 +606,21 @@
   </div>
 </div>
 
+<!-- End Shift / Clear All confirmation modal -->
+<div class="modal-overlay" id="endshift-overlay" style="display:none;">
+  <div class="modal" style="max-width:320px;">
+    <h3 style="color:var(--danger-text);">⚠ End Shift &amp; Clear All Data</h3>
+    <p style="font-size:13px;color:var(--text2);line-height:1.6;margin:10px 0 14px;">This will permanently delete all patient data, drip logs, and shift reports from this device. This action cannot be undone.</p>
+    <div style="background:var(--warn-bg);border-radius:var(--radius);padding:9px 12px;font-size:12px;color:var(--warn-text);margin-bottom:14px;line-height:1.5;">
+      <i class="ti ti-shield-lock"></i> &nbsp;Clearing data at end of shift is required to prevent unauthorized access to patient information.
+    </div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeEndShift()">Cancel</button>
+      <button style="flex:1;padding:9px;border-radius:var(--radius);font-size:13px;cursor:pointer;background:var(--danger-bg);color:var(--danger-text);border:0.5px solid rgba(121,31,31,0.3);font-weight:500;" onclick="confirmEndShift()">Clear All &amp; End Shift</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-overlay" style="display:none;">
   <div class="modal">
     <h3 id="modal-title">Add patient</h3>
@@ -654,7 +733,7 @@ function emptyReport() {
 }
 
 function emptyPatient(label) {
-  return { id: nextId++, label, weightKg:'', activeDrops:[], wsTab:'calculator',
+  return { id: nextId++, label, weightKg:'', weightType:'Actual', activeDrops:[], wsTab:'calculator',
     calcState:{ drugId:null, mode:'dose', concIdx:0, doseInput:'', rateInput:'' },
     report: emptyReport() };
 }
@@ -817,7 +896,7 @@ function renderCalculator(pt) {
         <div class="drip-detail${drip.expanded?' open':''}">
           <div class="drip-detail-row">
             <div class="drip-detail-item"><span>Concentration</span><span>${drip.concLabel}</span></div>
-            <div class="drip-detail-item"><span>Weight used</span><span>${drip.wt ? drip.wt+' kg' : 'N/A'}</span></div>
+            <div class="drip-detail-item"><span>Weight used</span><span>${drip.wt ? drip.wt+' kg' : 'N/A'}${drip.weightType && drip.weightType !== 'Actual' ? ` <span style="font-size:10px;color:var(--warn-text);">(${drip.weightType})</span>` : ''}</span></div>
             <div class="drip-detail-item"><span>Direction</span><span>${drip.mode==='dose'?'Dose → Rate':'Rate → Dose'}</span></div>
 <hr class="section">
 
@@ -1063,7 +1142,14 @@ function renderWorkspace() {
     <div class="row">
       <div class="field"><label>Weight (kg)</label><input type="number" id="wt-kg" value="${pt.weightKg}" placeholder="e.g. 80" min="1" max="300" step="any" onchange="wtChange('kg',this.value)" oninput="wtInput('kg',this.value)"></div>
       <div class="field"><label>Weight (lbs)</label><input type="number" id="wt-lbs" value="${pt.weightKg ? (parseFloat(pt.weightKg)*2.2046).toFixed(1) : ''}" placeholder="e.g. 176" step="any" onchange="wtChange('lbs',this.value)" oninput="wtInput('lbs',this.value)"></div>
+      <div class="field" style="min-width:130px;max-width:150px;">
+        <label>Weight type</label>
+        <select onchange="setWeightType(this.value)" title="Actual = measured; Ideal (IBW) = height-based; Adjusted = for obese patients (used for some drips)">
+          ${['Actual','Ideal (IBW)','Adjusted'].map(o=>`<option${(pt.weightType||'Actual')===o?' selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
     </div>
+    ${(pt.weightType && pt.weightType !== 'Actual') ? `<div class="conc-note" style="margin-top:6px;"><i class="ti ti-alert-triangle"></i> Using <strong>${pt.weightType}</strong> weight — verify dosing weight per institutional protocol for each drug (phenylephrine, dexmedetomidine, propofol dosing may differ).</div>` : ''}
   </div>`;
 
   h += `<div class="workspace-tabs">
@@ -1099,6 +1185,15 @@ function wtInput(from, val) {
 }
 
 function wtChange(from, val) { wtInput(from, val); }
+
+function setWeightType(val) {
+  const pt = getPt();
+  if (!pt) return;
+  pt.weightType = val;
+  saveState();
+  // Re-render just the weight card hint (lightweight — re-render full workspace)
+  render();
+}
 
 const HIPAA_SESSION_KEY = 'shiftline_hipaa_seen';
 
@@ -1173,6 +1268,7 @@ function addDrip() {
   concIdx:cs.concIdx,
 
   wt:pt.weightKg||null,
+  weightType:pt.weightType||'Actual',
 
   mode:cs.mode,
 
@@ -1349,7 +1445,7 @@ function setLineField(lineId, fieldId, val) {
   txt += `Room: ${pt.label}\n`;
 
   if(pt.weightKg){
-    txt += `Weight: ${pt.weightKg} kg\n`;
+    txt += `Weight: ${pt.weightKg} kg (${pt.weightType||'Actual'})\n`;
   }
 
   txt += '\n';
@@ -1424,10 +1520,23 @@ function setLineField(lineId, fieldId, val) {
   return txt;
 }
 
+// ── Toast ──
+let _toastTimer = null;
+function showToast(msg, duration = 2200) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), duration);
+}
+
 function copyReport(){
   const txt = buildReportText();
-  navigator.clipboard.writeText(txt);
-  alert('Shift report copied to clipboard');
+  navigator.clipboard.writeText(txt).then(() => {
+    showToast('✓ Shift report copied to clipboard');
+  }).catch(() => {
+    showToast('Copy failed — try again');
+  });
 }
 
 async function shareReport(){
@@ -1439,22 +1548,43 @@ async function shareReport(){
     try {
       await navigator.share({ title, text: txt });
     } catch(e) {
-      // User cancelled — silently ignore; only alert on real errors
       if (e.name !== 'AbortError') {
-        alert('Share failed. Use Copy Report instead.');
+        showToast('Share failed — use Copy Report instead');
       }
     }
   } else {
-    // Desktop fallback: copy + notify
     navigator.clipboard.writeText(txt).then(() => {
-      alert('Sharing is not supported in this browser.\nReport copied to clipboard — paste it wherever you need.');
+      showToast('Report copied — sharing not supported in this browser');
     });
   }
 }
  
 
+// ── End Shift / Clear All ──
+function openEndShift() {
+  document.getElementById('endshift-overlay').style.display = 'flex';
+}
+function closeEndShift() {
+  document.getElementById('endshift-overlay').style.display = 'none';
+}
+function confirmEndShift() {
+  // Clear all localStorage keys owned by ShiftLine
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(TOS_KEY);
+  localStorage.removeItem(WELCOME_KEY);
+  localStorage.removeItem('installBannerDismissed');
+  localStorage.removeItem('hipaaWarningSeen');
+  // Reset in-memory state
+  patients = [];
+  activeId = null;
+  nextId = 1;
+  closeEndShift();
+  render();
+  showToast('✓ All shift data cleared');
+}
+
 // ── Feedback ──
-const FEEDBACK_EMAIL = 'your@email.com'; // ← replace with your address
+const FEEDBACK_EMAIL = 'medicalreferencepros@gmail.com';
 
 function openFeedback() {
   document.getElementById('feedback-text').value = '';
