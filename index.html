@@ -1579,13 +1579,14 @@ function buildAllPatientsReportText() {
 }
 
 function executeReport(scope) {
+  const action = _reportAction; // capture before closeReportScope nulls it
   closeReportScope();
   const txt = scope === 'all' ? buildAllPatientsReportText() : buildReportText();
   const title = scope === 'all'
     ? `Shift Report — All Patients`
     : `Shift Report — ${getPt() ? getPt().label : 'Patient'}`;
 
-  if (_reportAction === 'share') {
+  if (action === 'share') {
     if (navigator.share) {
       navigator.share({ title, text: txt }).catch(e => {
         if (e.name !== 'AbortError') showToast('Share failed — use Copy Report instead');
