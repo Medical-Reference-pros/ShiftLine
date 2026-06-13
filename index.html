@@ -747,7 +747,11 @@ function computeResult(drug, cs, weightKg) {
 function emptyReport() {
   const lines = {};
   LINE_TYPES.forEach(lt => { lines[lt.id] = { checked: false, fields: {} }; });
-  return { attending:'', diagnosis:'', codeStatus:'Full', isolation:'None', allergies:'', lines, history:'', consults:'', pending:'', notes:'' };
+  return { attending:'', diagnosis:'', codeStatus:'Full', isolation:'None', allergies:'', lines,
+    ventOn: false, ventType:'invasive', ventMode:'AC/VC', ventModeCustom:'',
+    ventRR:'', ventVt:'', ventFiO2:'', ventPEEP:'', ventPS:'', ventPC:'',
+    ventIPAP:'', ventEPAP:'', ventNIVFiO2:'',
+    history:'', consults:'', pending:'', notes:'' };
 }
 
 function emptyPatient(label) {
@@ -1054,6 +1058,51 @@ function renderReport(pt) {
     <div class="field-row full">
       <div class="field"><label>Allergies</label><input type="text" value="${esc(r.allergies)}" placeholder="NKDA or list allergies" oninput="setReport('allergies',this.value)"></div>
     </div>
+  </div>`;
+
+  h += `<div class="report-section">
+    <div class="report-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+      <span>Ventilator</span>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text2);cursor:pointer;">
+        <input type="checkbox" ${r.ventOn?'checked':''} onchange="setReport('ventOn',this.checked);renderWorkspace();" style="accent-color:var(--info-text);cursor:pointer;">
+        Patient on ventilator
+      </label>
+    </div>
+    ${r.ventOn ? `
+    <div class="mode-toggle" style="margin-bottom:10px;">
+      <button class="mode-btn${r.ventType==='invasive'?' active':''}" onclick="setReport('ventType','invasive');renderWorkspace();">Invasive</button>
+      <button class="mode-btn${r.ventType==='niv'?' active':''}" onclick="setReport('ventType','niv');renderWorkspace();">NIV / Mask</button>
+    </div>
+    ${r.ventType === 'invasive' ? `
+    <div class="field-row">
+      <div class="field"><label>Mode</label>
+        <select onchange="setReport('ventMode',this.value);renderWorkspace();">
+          ${['AC/VC','AC/PC','PRVC / VC+','PSV','CPAP','BiPAP','Custom'].map(o=>`<option${r.ventMode===o?' selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
+      ${r.ventMode === 'Custom' ? `
+      <div class="field"><label>Custom mode</label>
+        <input type="text" value="${esc(r.ventModeCustom)}" placeholder="e.g. APRV" oninput="setReport('ventModeCustom',this.value)">
+      </div>` : '<div class="field"></div>'}
+    </div>
+    <div class="field-row three">
+      <div class="field"><label>RR (set)</label><input type="text" inputmode="numeric" value="${esc(r.ventRR)}" placeholder="e.g. 14" oninput="setReport('ventRR',this.value)"></div>
+      <div class="field"><label>Vt (mL)</label><input type="text" inputmode="numeric" value="${esc(r.ventVt)}" placeholder="e.g. 450" oninput="setReport('ventVt',this.value)"></div>
+      <div class="field"><label>FiO₂ (%)</label><input type="text" inputmode="numeric" value="${esc(r.ventFiO2)}" placeholder="e.g. 40" oninput="setReport('ventFiO2',this.value)"></div>
+    </div>
+    <div class="field-row three">
+      <div class="field"><label>PEEP (cmH₂O)</label><input type="text" inputmode="numeric" value="${esc(r.ventPEEP)}" placeholder="e.g. 5" oninput="setReport('ventPEEP',this.value)"></div>
+      <div class="field"><label>PS (cmH₂O)</label><input type="text" inputmode="numeric" value="${esc(r.ventPS)}" placeholder="e.g. 10" oninput="setReport('ventPS',this.value)"></div>
+      <div class="field"><label>PC / IP (cmH₂O)</label><input type="text" inputmode="numeric" value="${esc(r.ventPC)}" placeholder="e.g. 20" oninput="setReport('ventPC',this.value)"></div>
+    </div>
+    ` : `
+    <div class="field-row three">
+      <div class="field"><label>IPAP (cmH₂O)</label><input type="text" inputmode="numeric" value="${esc(r.ventIPAP)}" placeholder="e.g. 14" oninput="setReport('ventIPAP',this.value)"></div>
+      <div class="field"><label>EPAP (cmH₂O)</label><input type="text" inputmode="numeric" value="${esc(r.ventEPAP)}" placeholder="e.g. 5" oninput="setReport('ventEPAP',this.value)"></div>
+      <div class="field"><label>FiO₂ (%)</label><input type="text" inputmode="numeric" value="${esc(r.ventNIVFiO2)}" placeholder="e.g. 35" oninput="setReport('ventNIVFiO2',this.value)"></div>
+    </div>
+    `}
+    ` : ''}
   </div>`;
 
   h += `<div class="report-section">
@@ -1494,6 +1543,25 @@ function setLineField(lineId, fieldId, val) {
       txt += '\n';
     });
 
+    txt += '\n';
+  }
+
+  if(r.ventOn) {
+    if(r.ventType === 'niv') {
+      txt += 'VENTILATOR (NIV)\n';
+      if(r.ventIPAP)    txt += `IPAP: ${r.ventIPAP} cmH₂O\n`;
+      if(r.ventEPAP)    txt += `EPAP: ${r.ventEPAP} cmH₂O\n`;
+      if(r.ventNIVFiO2) txt += `FiO₂: ${r.ventNIVFiO2}%\n`;
+    } else {
+      const modeName = r.ventMode === 'Custom' && r.ventModeCustom ? r.ventModeCustom : r.ventMode;
+      txt += `VENTILATOR — ${modeName}\n`;
+      if(r.ventRR)   txt += `RR: ${r.ventRR} bpm\n`;
+      if(r.ventVt)   txt += `Vt: ${r.ventVt} mL\n`;
+      if(r.ventFiO2) txt += `FiO₂: ${r.ventFiO2}%\n`;
+      if(r.ventPEEP) txt += `PEEP: ${r.ventPEEP} cmH₂O\n`;
+      if(r.ventPS)   txt += `PS: ${r.ventPS} cmH₂O\n`;
+      if(r.ventPC)   txt += `PC/IP: ${r.ventPC} cmH₂O\n`;
+    }
     txt += '\n';
   }
 
