@@ -282,6 +282,116 @@
     background: transparent;
     color: var(--info-text);
   }
+
+  /* ── Welcome modal ── */
+  .welcome-modal { max-width: 340px; }
+  .welcome-modal .wm-logo {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  }
+  .welcome-modal .wm-logo-icon {
+    flex-shrink: 0; width: 36px; height: 36px;
+    background: linear-gradient(135deg, #0c447c 0%, #1a6eb5 100%);
+    border-radius: 9px; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(12,68,124,0.28);
+  }
+  .welcome-modal .wm-wordmark {
+    font-size: 20px; font-weight: 700; letter-spacing: -0.4px; line-height: 1; color: var(--text);
+  }
+  .welcome-modal .wm-wordmark .word-shift { color: #0c6ebf; }
+  .welcome-modal .wm-tagline {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--text2); margin-top: 2px;
+  }
+  .welcome-modal .wm-body {
+    font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 14px;
+  }
+  .welcome-modal .wm-features {
+    list-style: none; margin: 10px 0 14px; display: flex; flex-direction: column; gap: 7px;
+  }
+  .welcome-modal .wm-features li {
+    display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text2);
+  }
+  .welcome-modal .wm-features li i {
+    color: var(--info-text); flex-shrink: 0; margin-top: 1px; font-size: 15px;
+  }
+  .welcome-modal .wm-disclaimer {
+    font-size: 11px; color: var(--text3); line-height: 1.5; margin-bottom: 14px;
+    padding: 8px 10px; background: var(--warn-bg); border-radius: var(--radius);
+    color: var(--warn-text);
+  }
+  .welcome-modal .wm-footer {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  }
+  .welcome-modal .wm-skip-label {
+    display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); cursor: pointer;
+  }
+  .welcome-modal .wm-skip-label input { cursor: pointer; accent-color: var(--info-text); }
+  .welcome-modal .wm-go-btn {
+    padding: 9px 20px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+    cursor: pointer; background: var(--info-bg); color: var(--info-text);
+    border: 0.5px solid var(--info-border);
+  }
+
+  /* ── Terms of Use modal ── */
+  .tos-modal { max-width: 400px; max-height: 90vh; display: flex; flex-direction: column; }
+  .tos-modal h3 { font-size: 16px; font-weight: 600; margin: 0 0 4px; color: var(--text); }
+  .tos-modal .tos-subtitle { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
+  .tos-scroll {
+    flex: 1; overflow-y: auto; font-size: 12.5px; color: var(--text2); line-height: 1.65;
+    border: 0.5px solid var(--border); border-radius: var(--radius);
+    padding: 10px 12px; margin-bottom: 14px; background: var(--bg2);
+    max-height: 52vh;
+  }
+  .tos-scroll h4 { font-size: 12px; font-weight: 600; color: var(--text); margin: 12px 0 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .tos-scroll h4:first-child { margin-top: 0; }
+  .tos-scroll p { margin-bottom: 8px; }
+  .tos-accept-btn {
+    width: 100%; padding: 12px; border-radius: var(--radius); font-size: 14px; font-weight: 600;
+    cursor: pointer; background: var(--info-bg); color: var(--info-text);
+    border: 0.5px solid var(--info-border); letter-spacing: 0.01em;
+  }
+  .tos-accept-btn:hover { opacity: 0.88; }
+  .tos-version-note { font-size: 11px; color: var(--text3); text-align: center; margin-top: 8px; }
+
+  /* ── Version footer ── */
+  .app-version { font-size: 11px; color: var(--text3); text-align: center; margin-top: 0.5rem; }
+
+  /* ── HIPAA warning modal ── */
+  .hipaa-modal { max-width: 360px; }
+  .hipaa-modal .hipaa-icon {
+    font-size: 32px; text-align: center; margin-bottom: 10px; color: var(--warn-text);
+  }
+  .hipaa-modal h3 { text-align: center; font-size: 15px; margin-bottom: 10px; }
+  .hipaa-modal .hipaa-body {
+    font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 12px;
+  }
+  .hipaa-modal .hipaa-rules {
+    list-style: none; display: flex; flex-direction: column; gap: 6px;
+    margin: 0 0 14px; padding: 10px 12px;
+    background: var(--warn-bg); border-radius: var(--radius);
+  }
+  .hipaa-modal .hipaa-rules li {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 13px; color: var(--warn-text); line-height: 1.45;
+  }
+  .hipaa-modal .hipaa-rules li i { flex-shrink: 0; margin-top: 1px; }
+  .hipaa-modal .hipaa-ok-btn {
+    width: 100%; padding: 11px; border-radius: var(--radius); font-size: 14px; font-weight: 500;
+    cursor: pointer; background: var(--info-bg); color: var(--info-text);
+    border: 0.5px solid var(--info-border);
+  }
+
+  /* ── Inline PHI reminder strip in report ── */
+  .phi-reminder {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 12px; color: var(--warn-text);
+    background: var(--warn-bg); border-radius: var(--radius);
+    padding: 8px 10px; margin-bottom: 12px; line-height: 1.45;
+  }
+  .phi-reminder i { flex-shrink: 0; margin-top: 1px; font-size: 14px; }
+
+  /* ── Modal hint text ── */
+  .modal-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -315,6 +425,7 @@
   <div class="pt-tab-bar" id="tab-bar"></div>
   <div id="workspace"></div>
   <p class="disclaimer">Reference tool only. Verify all calculations against institutional protocols and current drug references. Not for diagnostic or prescriptive use. Propofol calculations based on selected concentration — confirm formulation with pharmacy before use.</p>
+  <p class="app-version">ShiftLine v1.0 &nbsp;·&nbsp; <button style="background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;padding:0;text-decoration:underline;" onclick="showTos()">Terms of Use</button></p>
 </div>
 
 <!-- Feedback floating button -->
@@ -338,12 +449,106 @@
   </div>
 </div>
 
+<!-- Terms of Use modal — must be accepted on first launch, cannot be skipped -->
+<div class="modal-overlay" id="tos-overlay" style="display:none;">
+  <div class="modal tos-modal">
+    <h3>Terms of Use</h3>
+    <div class="tos-subtitle">ShiftLine &nbsp;·&nbsp; Version 1.0 &nbsp;·&nbsp; Please read before using</div>
+    <div class="tos-scroll">
+      <h4>1. No Medical Advice</h4>
+      <p>ShiftLine is a reference and organizational tool intended to assist licensed healthcare professionals in managing shift information. It does not constitute medical advice, clinical guidance, or a substitute for professional judgment. All clinical decisions remain the sole responsibility of the licensed clinician.</p>
+
+      <h4>2. Verification Required</h4>
+      <p>All drug calculations, dosing values, and clinical information displayed by this tool must be independently verified against your institution's protocols, current pharmacological references, and applicable standards of care before use. Do not rely solely on this tool for any patient care decision.</p>
+
+      <h4>3. Not an FDA-Cleared Medical Device</h4>
+      <p>ShiftLine has not been reviewed or cleared by the U.S. Food and Drug Administration (FDA) or any other regulatory authority. It is not intended to diagnose, treat, cure, or prevent any disease or medical condition.</p>
+
+      <h4>4. HIPAA &amp; Patient Privacy</h4>
+      <p>This tool is not a HIPAA-covered system and does not provide a Business Associate Agreement (BAA). Do not enter any Protected Health Information (PHI), including patient names, dates of birth, MRN, SSN, or any other identifying information. Use room/bed identifiers and clinical abbreviations only. You are solely responsible for your compliance with applicable privacy laws and your institution's policies.</p>
+
+      <h4>5. Data Storage</h4>
+      <p>All data entered into ShiftLine is stored locally on your device using browser localStorage. No data is transmitted to any external server. You are responsible for ensuring your device is secured appropriately and that data is cleared at the end of your shift or as required by your institution.</p>
+
+      <h4>6. No Warranty</h4>
+      <p>This tool is provided "as is," without warranty of any kind, express or implied. The developer makes no representations regarding the accuracy, completeness, or fitness for a particular purpose of any calculation or information provided.</p>
+
+      <h4>7. Limitation of Liability</h4>
+      <p>To the fullest extent permitted by applicable law, the developer shall not be liable for any direct, indirect, incidental, special, or consequential damages arising from the use of or inability to use this tool, including but not limited to clinical errors, patient harm, or HIPAA violations.</p>
+
+      <h4>8. Intended Users</h4>
+      <p>ShiftLine is intended for use only by licensed healthcare professionals operating within their scope of practice. Use by unlicensed individuals or outside of a clinical context is not supported or endorsed.</p>
+
+      <h4>9. Acceptance</h4>
+      <p>By tapping "I Accept" below, you confirm that you are a licensed healthcare professional, that you have read and understood these terms, and that you agree to use this tool in accordance with them.</p>
+    </div>
+    <button class="tos-accept-btn" onclick="acceptTos()"><i class="ti ti-circle-check"></i> &nbsp;I Accept — Continue to ShiftLine</button>
+    <div class="tos-version-note">ShiftLine v1.0 &nbsp;·&nbsp; For clinical reference use only</div>
+  </div>
+</div>
+
+<!-- Welcome / onboarding modal -->
+<div class="modal-overlay" id="welcome-overlay" style="display:none;">
+  <div class="modal welcome-modal">
+    <div class="wm-logo">
+      <div class="wm-logo-icon">
+        <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="1,11 5,11 7,5 9,17 11,9 13,13 15,11 21,11"
+            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+      <div>
+        <div class="wm-wordmark"><span class="word-shift">Shift</span>Line</div>
+        <div class="wm-tagline">ICU Report Assistant</div>
+      </div>
+    </div>
+    <div class="wm-body">
+      A bedside tool built for ICU clinicians to organize shift handoffs and drip management — fast, offline-capable, and mobile-friendly.
+    </div>
+    <ul class="wm-features">
+      <li><i class="ti ti-users"></i> Track multiple patients per shift with per-bed tabs</li>
+      <li><i class="ti ti-droplet"></i> Drip calculator with dose ↔ rate conversion for common ICU infusions</li>
+      <li><i class="ti ti-activity"></i> Log active drips, titrations, and last-change timestamps</li>
+      <li><i class="ti ti-clipboard-list"></i> Structured shift report — lines, code status, labs, consults</li>
+      <li><i class="ti ti-share"></i> One-tap copy or share your report at handoff</li>
+    </ul>
+    <div class="wm-disclaimer">
+      ⚠ Reference tool only. Verify all calculations against your institution's protocols. Not for diagnostic or prescriptive use.
+    </div>
+    <div class="wm-footer">
+      <label class="wm-skip-label">
+        <input type="checkbox" id="welcome-dont-show"> Don't show again
+      </label>
+      <button class="wm-go-btn" onclick="closeWelcome()">Get Started</button>
+    </div>
+  </div>
+</div>
+
+<!-- HIPAA / PHI warning modal — shown once per session on first report tab access -->
+<div class="modal-overlay" id="hipaa-overlay" style="display:none;">
+  <div class="modal hipaa-modal">
+    <div class="hipaa-icon"><i class="ti ti-shield-lock"></i></div>
+    <h3>HIPAA Reminder</h3>
+    <div class="hipaa-body">
+      This section contains free-text fields. HIPAA violations carry serious penalties — please follow these guidelines:
+    </div>
+    <ul class="hipaa-rules">
+      <li><i class="ti ti-x"></i> Do not enter patient names, dates of birth, or any personal identifiers</li>
+      <li><i class="ti ti-x"></i> Do not enter MRN, SSN, insurance IDs, or account numbers</li>
+      <li><i class="ti ti-check"></i> Use room/bed numbers and clinical abbreviations only</li>
+      <li><i class="ti ti-check"></i> Treat this report as you would any other clinical communication</li>
+    </ul>
+    <button class="hipaa-ok-btn" onclick="closeHipaaWarning()">I Understand — Continue</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-overlay" style="display:none;">
   <div class="modal">
     <h3 id="modal-title">Add patient</h3>
     <div class="field">
       <label id="modal-label">Room / Bed Identifier</label>
       <input type="text" id="modal-input" placeholder="e.g. 412A, CV7, SICU4" maxlength="20">
+      <div class="modal-hint"><i class="ti ti-shield-lock"></i> Room/bed ID only — no patient names</div>
     </div>
     <div class="modal-btns">
       <button class="btn-secondary" onclick="cancelModal()">Cancel</button>
@@ -726,6 +931,11 @@ function renderReport(pt) {
   const r = pt.report;
   let h = '<div class="card">';
 
+  h += `<div class="phi-reminder">
+    <i class="ti ti-shield-lock"></i>
+    <span>No PHI in free-text fields. Use room/bed numbers and clinical abbreviations only — no patient names, DOB, MRN, or other identifiers.</span>
+  </div>`;
+
   h += `<div class="report-section">
     <div class="report-section-title">Patient overview</div>
     <div class="field-row">
@@ -890,7 +1100,20 @@ function wtInput(from, val) {
 
 function wtChange(from, val) { wtInput(from, val); }
 
-function setWsTab(tab) { getPt().wsTab = tab; renderWorkspace(); }
+const HIPAA_SESSION_KEY = 'shiftline_hipaa_seen';
+
+function closeHipaaWarning() {
+  sessionStorage.setItem(HIPAA_SESSION_KEY, '1');
+  document.getElementById('hipaa-overlay').style.display = 'none';
+}
+
+function setWsTab(tab) {
+  getPt().wsTab = tab;
+  renderWorkspace();
+  if (tab === 'report' && !sessionStorage.getItem(HIPAA_SESSION_KEY)) {
+    setTimeout(() => { document.getElementById('hipaa-overlay').style.display = 'flex'; }, 80);
+  }
+}
 
 function selectDrug(id) { getPt().calcState = { drugId:id, mode:'dose', concIdx:0, doseInput:'', rateInput:'' }; renderWorkspace(); }
 function clearDrug() { getPt().calcState = { drugId:null, mode:'dose', concIdx:0, doseInput:'', rateInput:'' }; renderWorkspace(); }
@@ -1253,10 +1476,46 @@ function submitFeedback() {
   closeFeedback();
 }
 
+// ── Terms of Use ──
+const TOS_KEY = 'shiftline_tos_accepted_v1';
+
+function showTos() {
+  document.getElementById('tos-overlay').style.display = 'flex';
+}
+
+function acceptTos() {
+  localStorage.setItem(TOS_KEY, '1');
+  document.getElementById('tos-overlay').style.display = 'none';
+  setTimeout(showWelcome, 100);
+}
+
+// ── Welcome modal ──
+const WELCOME_KEY = 'shiftline_welcome_seen';
+
+function showWelcome() {
+  if (localStorage.getItem(WELCOME_KEY)) return; // user said don't show again
+  document.getElementById('welcome-overlay').style.display = 'flex';
+}
+
+function closeWelcome() {
+  if (document.getElementById('welcome-dont-show').checked) {
+    localStorage.setItem(WELCOME_KEY, '1');
+  }
+  document.getElementById('welcome-overlay').style.display = 'none';
+}
+
 if(!loadState()){
   // Fresh start — show the landing page, let user add their first patient
 }
 render();
+// Show ToS on first ever launch; after acceptance, welcome modal fires via acceptTos()
+setTimeout(() => {
+  if (!localStorage.getItem(TOS_KEY)) {
+    showTos();
+  } else {
+    showWelcome();
+  }
+}, 150);
 
 // ── Install banner ──
 let deferredInstallPrompt = null;
