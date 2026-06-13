@@ -1116,14 +1116,8 @@ function renderReport(pt) {
   <button
     class="btn-primary"
     style="flex:1;padding:12px;"
-    onclick="openReportScope('copy')">
-    <i class="ti ti-clipboard-copy" style="margin-right:5px;"></i>Copy Report
-  </button>
-  <button
-    class="btn-primary"
-    style="flex:1;padding:12px;"
     onclick="openReportScope('share')">
-    <i class="ti ti-share" style="margin-right:5px;"></i>Share Report
+    <i class="ti ti-share" style="margin-right:5px;"></i>Share / Copy Report
   </button>
 </div>`;
 
@@ -1599,34 +1593,15 @@ function executeReport(scope) {
     return;
   }
 
-  // copy
-  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
-    navigator.clipboard.writeText(txt).then(() => {
-      showToast('✓ Shift report copied to clipboard');
-    }).catch(() => {
-      showToast('Copy failed — try again');
-    });
-    return;
-  }
-
-  const blob = new Blob([txt], { type: 'text/plain' });
-  const item = new ClipboardItem({ 'text/plain': blob });
-  navigator.clipboard.write([item]).then(() => {
+  // copy fallback (desktop browsers where share is unavailable)
+  navigator.clipboard.writeText(txt).then(() => {
     showToast('✓ Shift report copied to clipboard');
   }).catch(() => {
-    navigator.clipboard.writeText(txt).then(() => {
-      showToast('✓ Shift report copied to clipboard');
-    }).catch(() => {
-      showToast('Copy failed — try again');
-    });
+    showToast('Copy failed — try again');
   });
 }
 
-function copyReport(){
-  openReportScope('copy');
-}
-
-async function shareReport(){
+function shareReport(){
   openReportScope('share');
 }
  
