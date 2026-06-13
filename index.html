@@ -773,6 +773,59 @@ function computeResult(drug, cs, weightKg) {
   }
 }
 
+
+function getDoseWarning(drugId,dose){
+  const d=parseFloat(dose);
+  if(!d) return '';
+  const limits={norepi:0.5,epi:0.5,propofol:80,vaso:0.04,heparin:3000};
+  if(drugId==='norepi' && d>0.5) return 'High norepinephrine dose entered. Verify order, concentration, and patient weight.';
+  if(drugId==='epi' && d>0.5) return 'High epinephrine dose entered. Verify order, concentration, and patient weight.';
+  if(drugId==='propofol' && d>80) return 'High propofol dose entered. Verify order and concentration.';
+  if(drugId==='vaso' && d>0.04) return 'High vasopressin dose entered. Verify order before continuing.';
+  if(drugId==='heparin' && d>3000) return 'High heparin infusion entered. Verify against protocol.';
+  return '';
+}
+function buildAudit(drug,result,wt){
+  return `Dose: ${result.dose} ${drug.doseUnit}\nRate: ${result.rate} mL/hr\nConcentration: ${result.conc.label}${wt?`\nWeight: ${wt} kg`:''}`;
+}
+
+
+function getTitrationConfig(drugId){
+  const cfg={
+    norepi:[-0.02,-0.01,0.01,0.02],
+    epi:[-0.02,-0.01,0.01,0.02],
+    dopa:[-2,-1,1,2],
+    phenyl:[-20,-10,10,20],
+    propofol:[-10,-5,5,10],
+    precedex:[-0.1,0.1],
+    fentanyl:[-50,-25,25,50],
+    midaz:[-1,1],
+    morphine:[-1,1],
+    insulin:[-1,1],
+    dilt:[-2.5,2.5],
+    nicard:[-2.5,2.5]
+  };
+  return cfg[drugId] || null;
+}
+
+function renderTitrationButtons(drip,idx){
+  const steps=getTitrationConfig(drip.drugId);
+  if(!steps){
+    return `<div style="margin-top:10px;font-size:12px;color:var(--text2);">Manual adjustment recommended</div>`;
+  }
+  let h='<div class="titrate-row">';
+  steps.forEach(s=>{
+    const cls=s<0?'neg':'pos';
+    const label=(s>0?'+':'')+s;
+    h+=`<button class="titrate-btn ${cls}" onclick="event.stopPropagation();quickTitrate(${idx},${s})">${label}</button>`;
+  });
+  if(drip.undoSnapshot){
+    h+=`<button class="titrate-btn undo-btn" onclick="event.stopPropagation();undoTitrate(${idx})"><i class="ti ti-arrow-back-up"></i> Undo</button>`;
+  }
+  h+='</div>';
+  return h;
+}
+
 function emptyReport() {
   const lines = {};
   LINE_TYPES.forEach(lt => { lines[lt.id] = { checked: false, fields: {} }; });
@@ -947,17 +1000,7 @@ function renderCalculator(pt) {
 <hr class="section">
 
 ${drip.drugId !== 'custom' ? `
-
-<div class="titrate-row">
-  <button class="titrate-btn neg" onclick="event.stopPropagation();quickTitrate(${idx},-5)">−5</button>
-  <button class="titrate-btn neg" onclick="event.stopPropagation();quickTitrate(${idx},-2)">−2</button>
-  <button class="titrate-btn neg" onclick="event.stopPropagation();quickTitrate(${idx},-1)">−1</button>
-  <button class="titrate-btn pos" onclick="event.stopPropagation();quickTitrate(${idx},+1)">+1</button>
-  <button class="titrate-btn pos" onclick="event.stopPropagation();quickTitrate(${idx},+2)">+2</button>
-  <button class="titrate-btn pos" onclick="event.stopPropagation();quickTitrate(${idx},+5)">+5</button>
-  ${drip.undoSnapshot ? `<button class="titrate-btn undo-btn" onclick="event.stopPropagation();undoTitrate(${idx})" title="Undo last change"><i class="ti ti-arrow-back-up"></i> Undo</button>` : ''}
-</div>
-
+${renderTitrationButtons(drip,idx)}
 ` : `
 
 <div style="
@@ -1042,7 +1085,9 @@ ${drip.titrationHistory && drip.titrationHistory.length ? `
     }
     const result = computeResult(selDrug, cs, pt.weightKg);
     if (result) {
-      h += `<div class="result-box"><div class="result-main">${result.main}</div><div class="result-sub">${result.sub}</div></div>
+      const warning=getDoseWarning(selDrug.id,result.dose);
+      const audit=buildAudit(selDrug,result,pt.weightKg);
+      h += `<div class="result-box"><div class="result-main">${result.main}</div><div class="result-sub">${result.sub}</div>${warning?`<div style="margin-top:8px;padding:8px;border-radius:8px;background:var(--warn-bg);color:var(--warn-text);font-size:12px;"><strong>Verify Dose:</strong> ${warning}</div>`:''}<div style="margin-top:8px;font-size:11px;white-space:pre-line;color:var(--text2);"><strong>Calculation Audit</strong>\n${audit}</div></div>
       <button class="add-drip-btn" onclick="addDrip()"><i class="ti ti-plus"></i> Add to active drips</button>`;
     } else if (selDrug.weightBased && !pt.weightKg) {
       h += `<div class="result-box"><div class="result-sub">Enter patient weight above to calculate</div></div>`;
@@ -1487,6 +1532,8 @@ function addDrip() {
   if (!drug) return;
   const result=computeResult(drug,cs,pt.weightKg);
   if (!result) return;
+  const warn=getDoseWarning(drug.id,result.dose);
+  if(warn && !confirm(warn + "\n\nPress OK to continue.")) return;
   pt.activeDrops.push({
   name:drug.name,
   drugId:drug.id,
