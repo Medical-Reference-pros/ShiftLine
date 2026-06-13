@@ -1534,10 +1534,16 @@ function showToast(msg, duration = 2200) {
 
 function copyReport(){
   const txt = buildReportText();
-  navigator.clipboard.writeText(txt).then(() => {
+  const blob = new Blob([txt], { type: 'text/plain' });
+  const item = new ClipboardItem({ 'text/plain': blob });
+  navigator.clipboard.write([item]).then(() => {
     showToast('✓ Shift report copied to clipboard');
   }).catch(() => {
-    showToast('Copy failed — try again');
+    navigator.clipboard.writeText(txt).then(() => {
+      showToast('✓ Shift report copied to clipboard');
+    }).catch(() => {
+      showToast('Copy failed — try again');
+    });
   });
 }
 
