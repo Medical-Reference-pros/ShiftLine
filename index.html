@@ -780,6 +780,7 @@ function emptyReport() {
     ventOn: false, ventType:'invasive', ventMode:'AC/VC', ventModeCustom:'',
     ventRR:'', ventVt:'', ventFiO2:'', ventPEEP:'', ventPS:'', ventPC:'',
     ventIPAP:'', ventEPAP:'', ventNIVFiO2:'',
+    o2On: false, o2Device:'NC', o2Flow:'', o2HFNCFlow:'30', o2HFNCFiO2:'40', o2Timestamp: null,
     history:'', consults:'', pending:'', notes:'' };
 }
 
@@ -1125,6 +1126,61 @@ function renderReport(pt) {
       <div class="field"><label>FiO₂ (%)</label><input type="text" inputmode="numeric" value="${esc(r.ventNIVFiO2)}" placeholder="e.g. 35" oninput="setReport('ventNIVFiO2',this.value)"></div>
     </div>
     `}
+    ` : ''}
+  </div>`;
+
+  // ── O2 Section ──
+  const o2FlowOptions = Array.from({length:15}, (_,i)=>(i+1));           // 1–15 for NC/Salter
+  const hfncFlowOptions = Array.from({length:9}, (_,i)=>(20 + i*5));     // 20,25,...,60
+  const hfncFiO2Options = Array.from({length:15}, (_,i)=>(30 + i*5));    // 30,35,...,100
+
+  h += `<div class="report-section">
+    <div class="report-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+      <span>Supplemental O₂</span>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text2);cursor:pointer;">
+        <input type="checkbox" ${r.o2On?'checked':''} onchange="setReport('o2On',this.checked);renderWorkspace();" style="accent-color:var(--info-text);cursor:pointer;">
+        Patient on supplemental O₂
+      </label>
+    </div>
+    ${r.o2On ? `
+    <div class="field-row" style="margin-bottom:10px;">
+      <div class="field" style="max-width:180px;">
+        <label>Device</label>
+        <select onchange="setReport('o2Device',this.value);renderWorkspace();">
+          <option value="NC"${r.o2Device==='NC'?' selected':''}>NC — Nasal Cannula</option>
+          <option value="Salter"${r.o2Device==='Salter'?' selected':''}>Salter — High-flow Cannula</option>
+          <option value="HFNC"${r.o2Device==='HFNC'?' selected':''}>HFNC — High Flow Nasal Cannula</option>
+        </select>
+      </div>
+      ${r.o2Device === 'HFNC' ? `
+      <div class="field" style="max-width:130px;">
+        <label>Flow (L/min)</label>
+        <select onchange="setReport('o2HFNCFlow',this.value);">
+          ${hfncFlowOptions.map(v=>`<option value="${v}"${String(r.o2HFNCFlow)===String(v)?' selected':''}>${v} L/min</option>`).join('')}
+        </select>
+      </div>
+      <div class="field" style="max-width:130px;">
+        <label>FiO₂ (%)</label>
+        <select onchange="setReport('o2HFNCFiO2',this.value);">
+          ${hfncFiO2Options.map(v=>`<option value="${v}"${String(r.o2HFNCFiO2)===String(v)?' selected':''}>${v}%</option>`).join('')}
+        </select>
+      </div>
+      ` : `
+      <div class="field" style="max-width:150px;">
+        <label>Flow (L/min)</label>
+        <select onchange="setReport('o2Flow',this.value);">
+          <option value="">Select...</option>
+          ${(r.o2Device === 'NC' ? o2FlowOptions.slice(0,6) : o2FlowOptions).map(v=>`<option value="${v}"${String(r.o2Flow)===String(v)?' selected':''}>${v} L/min</option>`).join('')}
+        </select>
+      </div>
+      `}
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:2px;flex-wrap:wrap;">
+      <button class="mode-btn" style="font-size:12px;padding:5px 12px;" onclick="stampO2Time()">
+        <i class="ti ti-clock" style="font-size:12px;margin-right:4px;"></i>Stamp time
+      </button>
+      ${r.o2Timestamp ? `<span style="font-size:12px;color:var(--text2);">Last updated: <strong>${formatTime(r.o2Timestamp)}</strong> <button class="clear-link" onclick="setReport('o2Timestamp',null);renderWorkspace();" style="margin-left:4px;">clear</button></span>` : `<span style="font-size:12px;color:var(--text3);">No timestamp set</span>`}
+    </div>
     ` : ''}
   </div>`;
 
@@ -1574,6 +1630,14 @@ function discharge(id) {
 
 function setReport(field, val) { getPt().report[field]=val; }
 
+function stampO2Time() {
+  const pt = getPt();
+  if (!pt) return;
+  pt.report.o2Timestamp = new Date().toISOString();
+  renderWorkspace();
+  showToast('✓ O₂ time stamped');
+}
+
 function toggleLine(lineId) {
   const pt=getPt();
   pt.report.lines[lineId].checked = !pt.report.lines[lineId].checked;
@@ -1657,18 +1721,39 @@ function setLineField(lineId, fieldId, val) {
     txt += '\n';
   }
 
+  if(r.o2On) {
+    if(r.o2Device === 'HFNC') {
+      txt += `O₂ DELIVERY — HFNC\n`;
+      txt += `Flow: ${r.o2HFNCFlow} L/min\n`;
+      txt += `FiO₂: ${r.o2HFNCFiO2}%\n`;
+    } else if(r.o2Device === 'Salter') {
+      txt += `O₂ DELIVERY — Salter Cannula\n`;
+      if(r.o2Flow) txt += `Flow: ${r.o2Flow} L/min\n`;
+    } else {
+      txt += `O₂ DELIVERY — Nasal Cannula\n`;
+      if(r.o2Flow) txt += `Flow: ${r.o2Flow} L/min\n`;
+    }
+    if(r.o2Timestamp) txt += `Settings as of: ${formatTime(r.o2Timestamp)}\n`;
+    txt += '\n';
+  }
+
   txt += 'LINES\n';
 
   LINE_TYPES.forEach(lt=>{
-
     const line = r.lines[lt.id];
-
     if(line.checked){
-
-      txt += `• ${lt.label}\n`;
-
+      const details = lt.fields.map(f => {
+        const val = line.fields[f.id];
+        if(!val) return null;
+        if(f.type === 'date'){
+          const days = Math.floor((Date.now() - new Date(val + 'T12:00:00')) / 86400000);
+          const age = days === 0 ? 'placed today' : `${days}d ago`;
+          return `${f.label}: ${val} (${age})`;
+        }
+        return `${f.label}: ${val}`;
+      }).filter(Boolean);
+      txt += `• ${lt.label}${details.length ? ' — ' + details.join(', ') : ''}\n`;
     }
-
   });
 
   txt += '\n';
